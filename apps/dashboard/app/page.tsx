@@ -64,6 +64,10 @@ export default function HomePage() {
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [sites, setSites] = useState<Site[]>([]);
+  const [newSiteName, setNewSiteName] = useState('');
+  const [newSiteCurrency, setNewSiteCurrency] = useState<'CDF' | 'USD'>('CDF');
+  const [creatingSite, setCreatingSite] = useState(false);
+  const [siteMessage, setSiteMessage] = useState('');
   const [siteId, setSiteId] = useState('');
   const [routers, setRouters] = useState<Router[]>([]);
   const [error, setError] = useState('');
@@ -135,6 +139,48 @@ export default function HomePage() {
       setAuthError(err instanceof Error ? err.message : 'Connexion impossible.');
     } finally {
       setAuthLoading(false);
+    }
+  }
+
+  async function createSite(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!session?.access_token) return;
+    setError('');
+    setSiteMessage('');
+    setCreatingSite(true);
+    try {
+      const response = await fetch(`${API_BASE}/v1/sites`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          name: newSiteName.trim(),
+          defaultCurrency: newSiteCurrency,
+          timezone: 'Africa/Lubumbashi',
+        }),
+      });
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || `Création du site impossible (HTTP ${response.status}).`);
+      }
+      const created = await response.json() as { id: string };
+      const refresh = await fetch(`${API_BASE}/v1/sites`, {
+        headers: { Authorization: `Bearer ${session.access_token}`, Accept: 'application/json' },
+        cache: 'no-store',
+      });
+      if (!refresh.ok) throw new Error('Le site a été créé, mais la liste n’a pas pu être actualisée. Rechargez la page.');
+      const data = await refresh.json() as Site[];
+      setSites(data);
+      setSiteId(created.id);
+      setNewSiteName('');
+      setSiteMessage('Votre site Wi-Fi a été créé avec succès.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue pendant la création du site.');
+    } finally {
+      setCreatingSite(false);
     }
   }
 
@@ -219,6 +265,24 @@ export default function HomePage() {
         </div>
         <button type="button" onClick={signOut} style={secondaryButtonStyle}>Se déconnecter</button>
       </header>
+
+      <section style={panelStyle}>
+        <h2 style={{ fontSize: 18, marginTop: 0 }}>Créer un site Wi-Fi</h2>
+        <form onSubmit={createSite} style={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 1fr) 150px auto', gap: 12, alignItems: 'end' }}>
+          <label style={labelStyle}>Nom du site
+            <input required minLength={2} maxLength={120} value={newSiteName} onChange={e => setNewSiteName(e.target.value)} placeholder="Ex. Site principal – Kindu" style={inputStyle} />
+          </label>
+          <label style={labelStyle}>Devise
+            <select value={newSiteCurrency} onChange={e => setNewSiteCurrency(e.target.value as 'CDF' | 'USD')} style={inputStyle}>
+              <option value="CDF">CDF</option>
+              <option value="USD">USD</option>
+            </select>
+          </label>
+          <button type="submit" disabled={creatingSite || newSiteName.trim().length < 2} style={buttonStyle}>{creatingSite ? 'Création…' : 'Créer le site'}</button>
+        </form>
+        <p style={{ ...mutedStyle, fontSize: 12, marginTop: 10 }}>Fuseau horaire : Africa/Lubumbashi</p>
+        {siteMessage && <p role="status" style={{ color: '#166534', fontSize: 13 }}>{siteMessage}</p>}
+      </section>
 
       <section style={panelStyle}>
         <h2 style={{ fontSize: 18, marginTop: 0 }}>Mes sites</h2>
