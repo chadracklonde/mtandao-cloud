@@ -3,6 +3,7 @@ import {
   Controller,
   Post,
   Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { readBearerToken, SupabaseAuthGuard } from '../auth/auth.guard';
@@ -21,7 +22,7 @@ export class SitesController {
     @Req() request: AuthenticatedRequest,
   ): Promise<{ id: string }> {
     const token = readBearerToken(request.headers.authorization);
-    if (!token) throw new Error('Authenticated request is missing its bearer token');
+    if (!token) throw new UnauthorizedException('Bearer token required');
     return this.sitesService.create(dto, token);
   }
 }
