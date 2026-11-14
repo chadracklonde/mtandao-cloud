@@ -7,9 +7,23 @@ import { InvitationsController } from './invitations/invitations.controller';
 import { InvitationsService } from './invitations/invitations.service';
 import { RoutersController } from './routers/routers.controller';
 import { RoutersService } from './routers/routers.service';
+import { GatewayEnrollmentController } from './gateway/gateway-enrollment.controller';
+import { GatewayEnrollmentService } from './gateway/gateway-enrollment.service';
 
 @Module({
-  controllers: [HealthController, SitesController, InvitationsController, RoutersController],
-  providers: [SupabaseAuthGuard, SitesService, InvitationsService, RoutersService],
+  controllers: [
+    HealthController,
+    SitesController,
+    InvitationsController,
+    RoutersController,
+    GatewayEnrollmentController,
+  ],
+  providers: [
+    SupabaseAuthGuard,
+    SitesService,
+    InvitationsService,
+    RoutersService,
+    GatewayEnrollmentService,
+  ],
 })
 export class AppModule {}
