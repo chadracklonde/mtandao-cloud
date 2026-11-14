@@ -20,7 +20,7 @@ export class SupabaseAuthGuard implements CanActivate {
     const token = readBearerToken(request.headers.authorization);
     if (!token) throw new UnauthorizedException('Bearer token required');
 
-    const supabaseUrl = process.env.SUPABASE_URL?.replace(/\\/$/, '');
+    const supabaseUrl = process.env.SUPABASE_URL?.replace(/\/$/, '');
     const anonKey = process.env.SUPABASE_ANON_KEY;
     if (!supabaseUrl || !anonKey) {
       throw new ServiceUnavailableException('Authentication service is not configured');
