@@ -58,7 +58,7 @@ begin
   end if;
 
   if v_email = '' or length(v_email) > 254
-     or v_email !~* '^[A-Z0-9.!#$%&''*+/=?^_`{|}~-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$' then
+     or v_email !~* '^[A-Z0-9.!#$%&''*+/=?^_`{|}~-]+@[A-Z0-9.-]+\.[A-Z]{2,}$' then
     raise exception 'Invalid email address' using errcode = '22023';
   end if;
 
