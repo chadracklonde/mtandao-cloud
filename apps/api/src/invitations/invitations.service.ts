@@ -11,7 +11,7 @@ export class InvitationsService {
     payload: Record<string, string>,
     accessToken: string,
   ): Promise<T> {
-    const supabaseUrl = process.env.SUPABASE_URL?.replace(/\\/$/, '');
+    const supabaseUrl = process.env.SUPABASE_URL?.replace(/\/$/, '');
     const anonKey = process.env.SUPABASE_ANON_KEY;
     if (!supabaseUrl || !anonKey) {
       throw new ServiceUnavailableException('Supabase is not configured');
