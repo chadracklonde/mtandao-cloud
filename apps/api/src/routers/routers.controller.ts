@@ -20,7 +20,14 @@ export class RoutersController {
   constructor(private readonly routersService: RoutersService) {}
 
   @Get()
-  list(\n    @Param('siteId', new ParseUUIDPipe()) siteId: string,\n    @Req() request: AuthenticatedRequest,\n  ) {\n    const token = readBearerToken(request.headers.authorization);\n    if (!token) throw new UnauthorizedException('Bearer token required');\n    return this.routersService.list(siteId, token);\n  }
+  list(
+    @Param('siteId', new ParseUUIDPipe()) siteId: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    const token = readBearerToken(request.headers.authorization);
+    if (!token) throw new UnauthorizedException('Bearer token required');
+    return this.routersService.list(siteId, token);
+  }
 
   @Post()
   register(
