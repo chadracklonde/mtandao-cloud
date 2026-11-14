@@ -1,5 +1,5 @@
 import {
-  Controller,
+  Controller,\n  Get,
   Param,
   ParseUUIDPipe,
   Post,
@@ -18,7 +18,7 @@ import { RoutersService } from './routers.service';
 export class RoutersController {
   constructor(private readonly routersService: RoutersService) {}
 
-  @Post()
+  @Get()\n  list(\n    @Param('siteId', new ParseUUIDPipe()) siteId: string,\n    @Req() request: AuthenticatedRequest,\n  ) {\n    const token = readBearerToken(request.headers.authorization);\n    if (!token) throw new UnauthorizedException('Bearer token required');\n    return this.routersService.list(siteId, token);\n  }\n\n  @Post()
   register(
     @Param('siteId', new ParseUUIDPipe()) siteId: string,
     @Body() dto: CreateRouterDto,
