@@ -1,6 +1,18 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
+import type { Session } from '@supabase/supabase-js';
+import { createClient } from '../lib/supabase/client';
+
+type Site = {
+  id: string;
+  name: string;
+  default_currency: 'CDF' | 'USD';
+  timezone: string;
+  status: string;
+  created_at: string;
+  role: string;
+};
 
 type Router = {
   id: string;
@@ -38,21 +50,88 @@ function routerLabel(status: Router['router_connection_status']): string {
 }
 
 export default function HomePage() {
+  const supabase = useMemo(() => createClient(), []);
+  const [session, setSession] = useState<Session | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [sites, setSites] = useState<Site[]>([]);
   const [siteId, setSiteId] = useState('');
-  const [accessToken, setAccessToken] = useState('');
   const [routers, setRouters] = useState<Router[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  async function loadRouters(event: FormEvent<HTMLFormElement>) {
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (active) {
+        setSession(data.session);
+        setAuthReady(true);
+      }
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      setSites([]);
+      setSiteId('');
+      setRouters([]);
+      setLoaded(false);
+      setError('');
+    });
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
+  }, [supabase]);
+
+  useEffect(() => {
+    if (!session?.access_token) {
+      setSites([]);
+      return;
+    }
+    let active = true;
+    fetch(`${API_BASE}/v1/sites`, {
+      headers: { Authorization: `Bearer ${session.access_token}`, Accept: 'application/json' },
+      cache: 'no-store',
+    }).then(async response => {
+      if (!response.ok) throw new Error(response.status === 401 ? 'Votre session a expiré. Reconnectez-vous.' : `Chargement des sites impossible (HTTP ${response.status}).`);
+      return response.json() as Promise<Site[]>;
+    }).then(data => {
+      if (active) {
+        setSites(data);
+        setSiteId(current => current && data.some(site => site.id === current) ? current : data[0]?.id ?? '');
+      }
+    }).catch(err => {
+      if (active) setError(err instanceof Error ? err.message : 'Erreur lors du chargement des sites.');
+    });
+    return () => { active = false; };
+  }, [session?.access_token]);
+
+  async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setAuthError('');
+    setAuthLoading(true);
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      if (signInError) throw signInError;
+      setPassword('');
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : 'Connexion impossible.');
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
+  async function loadRouters() {
+    if (!session?.access_token || !siteId) return;
     setError('');
     setLoading(true);
     setLoaded(false);
     try {
-      const response = await fetch(`${API_BASE}/v1/sites/${encodeURIComponent(siteId.trim())}/routers`, {
-        headers: { Authorization: `Bearer ${accessToken.trim()}`, Accept: 'application/json' },
+      const response = await fetch(`${API_BASE}/v1/sites/${encodeURIComponent(siteId)}/routers`, {
+        headers: { Authorization: `Bearer ${session.access_token}`, Accept: 'application/json' },
         cache: 'no-store',
       });
       if (!response.ok) {
@@ -71,39 +150,72 @@ export default function HomePage() {
     }
   }
 
+  async function signOut() {
+    await supabase.auth.signOut();
+    setSession(null);
+  }
+
+  if (!authReady) return <main style={shellStyle}><p>Vérification de la session…</p></main>;
+
+  if (!session) {
+    return (
+      <main style={shellStyle}>
+        <header style={{ marginBottom: 32 }}>
+          <p style={eyebrowStyle}>GESTION CENTRALISÉE DES SITES WI-FI</p>
+          <h1 style={{ fontSize: 34, margin: '8px 0' }}>Mtandao Cloud</h1>
+          <p style={mutedStyle}>Connectez-vous pour accéder à vos espaces de gestion.</p>
+        </header>
+        <section style={panelStyle}>
+          <h2 style={{ fontSize: 20, marginTop: 0 }}>Connexion</h2>
+          <form onSubmit={signIn} style={{ display: 'grid', gap: 14 }}>
+            <label style={labelStyle}>Adresse e-mail
+              <input required type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} />
+            </label>
+            <label style={labelStyle}>Mot de passe
+              <input required type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} />
+            </label>
+            {authError && <p role="alert" style={errorStyle}>{authError}</p>}
+            <button disabled={authLoading} type="submit" style={buttonStyle}>{authLoading ? 'Connexion…' : 'Se connecter'}</button>
+          </form>
+          <p style={{ ...mutedStyle, fontSize: 12, marginBottom: 0 }}>Les comptes sont gérés par Supabase Auth. La création de compte et la récupération du mot de passe seront activées dans une prochaine étape.</p>
+        </section>
+      </main>
+    );
+  }
+
   return (
-    <main style={{ maxWidth: 1120, margin: '0 auto', padding: '48px 24px', fontFamily: 'Arial, sans-serif', color: '#172033' }}>
-      <header style={{ marginBottom: 32 }}>
-        <p style={{ color: '#52627a', fontSize: 13, letterSpacing: 1, fontWeight: 700 }}>GESTION CENTRALISÉE DES SITES WI-FI</p>
-        <h1 style={{ fontSize: 34, margin: '8px 0' }}>Mtandao Cloud</h1>
-        <p style={{ color: '#52627a', margin: 0 }}>État des passerelles et disponibilité des routeurs MikroTik.</p>
+    <main style={shellStyle}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: 16, marginBottom: 32, flexWrap: 'wrap' }}>
+        <div>
+          <p style={eyebrowStyle}>GESTION CENTRALISÉE DES SITES WI-FI</p>
+          <h1 style={{ fontSize: 34, margin: '8px 0' }}>Mtandao Cloud</h1>
+          <p style={mutedStyle}>Connecté en tant que {session.user.email ?? 'utilisateur'}.</p>
+        </div>
+        <button type="button" onClick={signOut} style={secondaryButtonStyle}>Se déconnecter</button>
       </header>
 
-      <section style={{ border: '1px solid #dce3ec', borderRadius: 12, padding: 20, marginBottom: 28 }}>
-        <h2 style={{ fontSize: 18, marginTop: 0 }}>Sélectionner un site</h2>
-        <form onSubmit={loadRouters} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14, alignItems: 'end' }}>
-          <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 }}>
-            Identifiant du site (UUID)
-            <input required value={siteId} onChange={e => setSiteId(e.target.value)} placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style={inputStyle} />
-          </label>
-          <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 }}>
-            Jeton d'accès Supabase
-            <input required type="password" autoComplete="off" value={accessToken} onChange={e => setAccessToken(e.target.value)} placeholder="Jeton de session" style={inputStyle} />
-          </label>
-          <button disabled={loading} type="submit" style={buttonStyle}>{loading ? 'Chargement…' : 'Afficher les routeurs'}</button>
-        </form>
-        <p style={{ color: '#64748b', fontSize: 12, marginBottom: 0 }}>Le jeton est utilisé uniquement en mémoire pendant cette session et n'est pas enregistré dans le navigateur.</p>
+      <section style={panelStyle}>
+        <h2 style={{ fontSize: 18, marginTop: 0 }}>Mes sites</h2>
+        {sites.length === 0 ? <p style={mutedStyle}>Aucun site accessible avec ce compte, ou chargement en cours.</p> : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 1fr) auto', gap: 12, alignItems: 'end' }}>
+            <label style={labelStyle}>Espace de travail
+              <select value={siteId} onChange={e => { setSiteId(e.target.value); setLoaded(false); setRouters([]); }} style={inputStyle}>
+                {sites.map(site => <option key={site.id} value={site.id}>{site.name} · {site.role} · {site.default_currency}</option>)}
+              </select>
+            </label>
+            <button type="button" disabled={!siteId || loading} onClick={loadRouters} style={buttonStyle}>{loading ? 'Chargement…' : 'Afficher les routeurs'}</button>
+          </div>
+        )}
+        {error && <p role="alert" style={errorStyle}>{error}</p>}
       </section>
-
-      {error && <p role="alert" style={{ background: '#fff1f2', color: '#9f1239', padding: 14, borderRadius: 8 }}>{error}</p>}
 
       {loaded && (
         <section>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 14 }}>
             <h2 style={{ fontSize: 20, margin: 0 }}>Routeurs du site</h2>
-            <span style={{ color: '#64748b', fontSize: 13 }}>{routers.length} équipement(s)</span>
+            <span style={mutedStyle}>{routers.length} équipement(s)</span>
           </div>
-          {routers.length === 0 ? <p style={{ color: '#64748b' }}>Aucun routeur enregistré pour ce site.</p> : (
+          {routers.length === 0 ? <p style={mutedStyle}>Aucun routeur enregistré pour ce site.</p> : (
             <div style={{ overflowX: 'auto', border: '1px solid #dce3ec', borderRadius: 12 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 760, textAlign: 'left' }}>
                 <thead><tr style={{ background: '#f5f7fa' }}>
@@ -133,7 +245,14 @@ function Status({ value, good }: { value: string; good: boolean }) {
   return <span style={{ display: 'inline-block', padding: '5px 9px', borderRadius: 20, background: good ? '#dcfce7' : '#f1f5f9', color: good ? '#166534' : '#475569', fontSize: 12, fontWeight: 700 }}>{value}</span>;
 }
 
-const inputStyle = { width: '100%', boxSizing: 'border-box' as const, border: '1px solid #cbd5e1', borderRadius: 7, padding: '11px 12px', fontSize: 14 };
+const shellStyle = { maxWidth: 1120, margin: '0 auto', padding: '48px 24px', fontFamily: 'Arial, sans-serif', color: '#172033' };
+const eyebrowStyle = { color: '#52627a', fontSize: 13, letterSpacing: 1, fontWeight: 700 };
+const mutedStyle = { color: '#52627a', margin: 0 };
+const panelStyle = { border: '1px solid #dce3ec', borderRadius: 12, padding: 20, marginBottom: 28 };
+const labelStyle = { display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 };
+const inputStyle = { width: '100%', boxSizing: 'border-box' as const, border: '1px solid #cbd5e1', borderRadius: 7, padding: '11px 12px', fontSize: 14, marginTop: 6 };
 const buttonStyle = { border: 0, borderRadius: 7, background: '#173b69', color: 'white', padding: '12px 18px', fontSize: 14, fontWeight: 700, cursor: 'pointer' };
+const secondaryButtonStyle = { ...buttonStyle, background: '#e8edf4', color: '#173b69' };
+const errorStyle = { background: '#fff1f2', color: '#9f1239', padding: 12, borderRadius: 8, fontSize: 13 };
 const thStyle = { padding: '13px 14px', fontSize: 12, color: '#475569', whiteSpace: 'nowrap' as const };
 const tdStyle = { padding: '14px', fontSize: 13, verticalAlign: 'top' as const };
