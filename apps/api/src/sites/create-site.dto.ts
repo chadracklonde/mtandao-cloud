@@ -1,4 +1,4 @@
-import { IsIn, IsString, Length, Matches, MaxLength } from 'class-validator';
+import { IsIn, IsString, Length, MaxLength } from 'class-validator';
 
 export class CreateSiteDto {
   @IsString()
@@ -10,6 +10,5 @@ export class CreateSiteDto {
 
   @IsString()
   @MaxLength(64)
-  @Matches(/^[A-Za-z_]+\\/[A-Za-z_]+(?:\\/[A-Za-z_]+)?$/)
   timezone = 'Africa/Lubumbashi';
 }
