@@ -140,8 +140,7 @@ begin
 
   insert into public.site_memberships(site_id, user_id, role, status)
   values (v_invitation.site_id, v_user_id, v_invitation.role, 'active')
-  on conflict (site_id, user_id) do update
-    set role = excluded.role, status = 'active';
+  ;
 
   update public.site_invitations
   set status = 'accepted', accepted_at = now()
