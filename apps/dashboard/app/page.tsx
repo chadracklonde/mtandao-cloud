@@ -268,7 +268,7 @@ export default function HomePage() {
 
       <section style={panelStyle}>
         <h2 style={{ fontSize: 18, marginTop: 0 }}>Créer un site Wi-Fi</h2>
-        <form onSubmit={createSite} style={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 1fr) 150px auto', gap: 12, alignItems: 'end' }}>
+        <form onSubmit={createSite} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, alignItems: 'end' }}>
           <label style={labelStyle}>Nom du site
             <input required minLength={2} maxLength={120} value={newSiteName} onChange={e => setNewSiteName(e.target.value)} placeholder="Ex. Site principal – Kindu" style={inputStyle} />
           </label>
@@ -278,7 +278,7 @@ export default function HomePage() {
               <option value="USD">USD</option>
             </select>
           </label>
-          <button type="submit" disabled={creatingSite || newSiteName.trim().length < 2} style={buttonStyle}>{creatingSite ? 'Création…' : 'Créer le site'}</button>
+          <button type="submit" disabled={creatingSite || newSiteName.trim().length < 2} style={{ ...buttonStyle, width: '100%' }}>{creatingSite ? 'Création…' : 'Créer le site'}</button>
         </form>
         <p style={{ ...mutedStyle, fontSize: 12, marginTop: 10 }}>Fuseau horaire : Africa/Lubumbashi</p>
         {siteMessage && <p role="status" style={{ color: '#166534', fontSize: 13 }}>{siteMessage}</p>}
@@ -287,13 +287,13 @@ export default function HomePage() {
       <section style={panelStyle}>
         <h2 style={{ fontSize: 18, marginTop: 0 }}>Mes sites</h2>
         {sites.length === 0 ? <p style={mutedStyle}>Aucun site accessible avec ce compte, ou chargement en cours.</p> : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 1fr) auto', gap: 12, alignItems: 'end' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, alignItems: 'end' }}>
             <label style={labelStyle}>Espace de travail
               <select value={siteId} onChange={e => { setSiteId(e.target.value); setLoaded(false); setRouters([]); }} style={inputStyle}>
                 {sites.map(site => <option key={site.id} value={site.id}>{site.name} · {site.role} · {site.default_currency}</option>)}
               </select>
             </label>
-            <button type="button" disabled={!siteId || loading} onClick={loadRouters} style={buttonStyle}>{loading ? 'Chargement…' : 'Afficher les routeurs'}</button>
+            <button type="button" disabled={!siteId || loading} onClick={loadRouters} style={{ ...buttonStyle, width: '100%' }}>{loading ? 'Chargement…' : 'Afficher les routeurs'}</button>
           </div>
         )}
         {error && <p role="alert" style={errorStyle}>{error}</p>}
