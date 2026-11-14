@@ -32,3 +32,13 @@ Les applications et migrations seront ajoutées progressivement. Consulter `docs
 ## État du projet
 
 Phase initiale : fondations et contrats. Aucun paiement réel ni accès routeur de production n'est activé à ce stade.
+
+
+## Cahier des charges et documentation
+
+- [Cahier des charges Mtandao Cloud](docs/cahier-des-charges.md) — exigences produit et techniques de référence.
+- [Architecture](docs/architecture.md) — responsabilités des composants et flux.
+- [Décisions d'architecture](docs/decisions.md) — choix structurants.
+- [Enrôlement Gateway](docs/gateway-enrollment.md) et [Heartbeat](docs/gateway-heartbeat.md).
+- [Mtandao Ticket — cahier des charges](https://github.com/chadracklonde/mtandao-ticket-app/blob/main/docs/cahier-des-charges.md).
+- [Mtandao Gateway — cahier des charges](https://github.com/chadracklonde/mtandao-gateway/blob/main/docs/cahier-des-charges.md).
