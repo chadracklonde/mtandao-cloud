@@ -6,16 +6,20 @@ import {
 } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 
+export type RouterConnectionStatus = 'unknown' | 'online' | 'unavailable';
+
 export interface GatewayHeartbeatResult {
   routerId: string;
   siteId: string;
   status: 'online';
   lastSeenAt: string;
+  routerConnectionStatus: RouterConnectionStatus;
+  routerLastSeenAt: string | null;
 }
 
 @Injectable()
 export class GatewayHeartbeatService {
-  async heartbeat(gatewayToken: string): Promise<GatewayHeartbeatResult> {
+  async heartbeat(gatewayToken: string, routerConnectionStatus: RouterConnectionStatus = 'unknown'): Promise<GatewayHeartbeatResult> {
     const supabaseUrl = process.env.SUPABASE_URL?.replace(/\/$/, '');
     const anonKey = process.env.SUPABASE_ANON_KEY;
     if (!supabaseUrl || !anonKey) {
@@ -32,7 +36,7 @@ export class GatewayHeartbeatService {
           authorization: `Bearer ${anonKey}`,
           'content-type': 'application/json',
         },
-        body: JSON.stringify({ p_gateway_token_hash: tokenHash }),
+        body: JSON.stringify({ p_gateway_token_hash: tokenHash, p_router_connection_status: routerConnectionStatus }),
         signal: AbortSignal.timeout(10000),
       });
     } catch {
@@ -55,12 +59,16 @@ export class GatewayHeartbeatService {
       site_id?: unknown;
       status?: unknown;
       last_seen_at?: unknown;
+      router_connection_status?: unknown;
+      router_last_seen_at?: unknown;
     };
     if (
       typeof row.router_id !== 'string' ||
       typeof row.site_id !== 'string' ||
       row.status !== 'online' ||
-      typeof row.last_seen_at !== 'string'
+      typeof row.last_seen_at !== 'string' ||
+      !['unknown', 'online', 'unavailable'].includes(String(row.router_connection_status)) ||
+      !(typeof row.router_last_seen_at === 'string' || row.router_last_seen_at === null)
     ) {
       throw new BadGatewayException('Supabase returned invalid heartbeat data');
     }
@@ -70,6 +78,8 @@ export class GatewayHeartbeatService {
       siteId: row.site_id,
       status: 'online',
       lastSeenAt: row.last_seen_at,
+      routerConnectionStatus: row.router_connection_status as RouterConnectionStatus,
+      routerLastSeenAt: row.router_last_seen_at as string | null,
     };
   }
 }
