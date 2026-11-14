@@ -24,7 +24,13 @@ Corps :
 
 Réponse : `routerId`, `enrollmentToken` et `expiresInSeconds`. Le jeton d'enrôlement est aléatoire (32 octets), renvoyé une seule fois, et seul son hash SHA-256 est conservé en base. Sa durée de validité est de 15 minutes.
 
-## Consulter les routeurs\n\n`GET /v1/sites/:siteId/routers`\n\nLa liste retourne uniquement les routeurs du site indiqué. PostgreSQL RLS vérifie l'adhésion active du compte. Les champs renvoyés comprennent l'identifiant, le nom, l'identité RouterOS, le type de Gateway, le statut et la dernière présence.\n\n## Sécurité
+## Consulter les routeurs
+
+`GET /v1/sites/:siteId/routers`
+
+La liste retourne uniquement les routeurs du site indiqué. PostgreSQL RLS vérifie l'adhésion active du compte. Les champs renvoyés comprennent l'identifiant, le nom, l'identité RouterOS, le type de Gateway, le statut et la dernière présence.
+
+## Sécurité
 
 - La base vérifie le rôle à partir de `auth.uid()`; le rôle fourni par le client n'est jamais accepté.
 - L'accès direct en écriture aux tables est révoqué pour les rôles API publics.
