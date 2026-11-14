@@ -6,6 +6,10 @@ import { AppModule } from './app.module';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('v1');
+  const dashboardOrigin = process.env.DASHBOARD_ORIGIN?.trim();
+  if (dashboardOrigin) {
+    app.enableCors({ origin: dashboardOrigin, methods: ['GET', 'POST', 'OPTIONS'], allowedHeaders: ['Authorization', 'Content-Type', 'Accept'] });
+  }
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
