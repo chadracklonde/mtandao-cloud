@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: mtandao-cloud-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: .
+    buildCommand: npm install && npm run build --workspace=@mtandao/api
+    startCommand: npm run start --workspace=@mtandao/api
+    healthCheckPath: /v1/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        value: https://supzoqcfzwrxdfbtqdzo.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: sb_publishable_U2Njqhj2t8eDmxzRelG9nQ_lYqGUcKv
+      - key: PORT
+        value: "10000"
