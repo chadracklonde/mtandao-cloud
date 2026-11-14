@@ -139,8 +139,7 @@ begin
   end if;
 
   insert into public.site_memberships(site_id, user_id, role, status)
-  values (v_invitation.site_id, v_user_id, v_invitation.role, 'active')
-  ;
+  values (v_invitation.site_id, v_user_id, v_invitation.role, 'active');
 
   update public.site_invitations
   set status = 'accepted', accepted_at = now()
