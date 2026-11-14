@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   Req,
   UnauthorizedException,
@@ -15,6 +16,14 @@ import { SitesService } from './sites.service';
 @UseGuards(SupabaseAuthGuard)
 export class SitesController {
   constructor(private readonly sitesService: SitesService) {}
+
+  @Get()
+  list(@Req() request: AuthenticatedRequest) {
+    const token = readBearerToken(request.headers.authorization);
+    if (!token) throw new UnauthorizedException('Bearer token required');
+    if (!request.user?.id) throw new UnauthorizedException('Authenticated user required');
+    return this.sitesService.list(token, request.user.id);
+  }
 
   @Post()
   create(
