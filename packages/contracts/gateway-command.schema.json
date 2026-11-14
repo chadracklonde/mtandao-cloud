@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mtandao Gateway Command",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "command_id",
+    "site_id",
+    "gateway_id",
+    "router_id",
+    "operation",
+    "issued_at",
+    "expires_at",
+    "payload"
+  ],
+  "properties": {
+    "command_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "site_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "gateway_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "router_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "operation": {
+      "enum": [
+        "health.check",
+        "hotspot.voucher.create",
+        "hotspot.voucher.disable",
+        "hotspot.profile.list",
+        "hotspot.active-sessions.list"
+      ]
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "type": "object"
+    },
+    "signature": {
+      "type": "string"
+    }
+  }
+}
