@@ -9,7 +9,35 @@ import { CreateRouterDto } from './create-router.dto';
 
 export interface RouterSummary {
   id: string;
-  name: string;\n  router_identity: string;\n  gateway_kind: 'android' | 'linux';\n  status: string;\n  last_seen_at: string | null;\n  created_at: string;\n}\n\nexport class RoutersService {\n  async list(siteId: string, accessToken: string): Promise<RouterSummary[]> {\n    const supabaseUrl = process.env.SUPABASE_URL?.replace(/\\/$/, '');\n    const anonKey = process.env.SUPABASE_ANON_KEY;\n    if (!supabaseUrl || !anonKey) throw new ServiceUnavailableException('Supabase is not configured');\n    const query = new URLSearchParams({\n      select: 'id,name,router_identity,gateway_kind,status,last_seen_at,created_at',\n      site_id: `eq.${siteId}`,\n      order: 'created_at.desc',\n    });\n    let response: Response;\n    try {\n      response = await fetch(`${supabaseUrl}/rest/v1/routers?${query.toString()}`, {\n        headers: { apikey: anonKey, authorization: `Bearer ${accessToken}` },\n        signal: AbortSignal.timeout(10000),\n      });\n    } catch { throw new ServiceUnavailableException('Supabase is unavailable'); }\n    if (!response.ok) throw new BadGatewayException('Unable to list routers for this site');\n    return (await response.json()) as RouterSummary[];\n  }
+  name: string;
+  router_identity: string;
+  gateway_kind: 'android' | 'linux';
+  status: string;
+  last_seen_at: string | null;
+  created_at: string;
+}
+
+@Injectable()
+export class RoutersService {
+  async list(siteId: string, accessToken: string): Promise<RouterSummary[]> {
+    const supabaseUrl = process.env.SUPABASE_URL?.replace(/\\/$/, '');
+    const anonKey = process.env.SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !anonKey) throw new ServiceUnavailableException('Supabase is not configured');
+    const query = new URLSearchParams({
+      select: 'id,name,router_identity,gateway_kind,status,last_seen_at,created_at',
+      site_id: `eq.${siteId}`,
+      order: 'created_at.desc',
+    });
+    let response: Response;
+    try {
+      response = await fetch(`${supabaseUrl}/rest/v1/routers?${query.toString()}`, {
+        headers: { apikey: anonKey, authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(10000),
+      });
+    } catch { throw new ServiceUnavailableException('Supabase is unavailable'); }
+    if (!response.ok) throw new BadGatewayException('Unable to list routers for this site');
+    return (await response.json()) as RouterSummary[];
+  }
 
   async register(
     siteId: string,
