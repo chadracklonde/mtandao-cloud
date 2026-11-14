@@ -14,6 +14,8 @@ export interface RouterSummary {
   gateway_kind: 'android' | 'linux';
   status: string;
   last_seen_at: string | null;
+  router_connection_status: 'unknown' | 'online' | 'unavailable';
+  router_last_seen_at: string | null;
   created_at: string;
 }
 
@@ -24,7 +26,7 @@ export class RoutersService {
     const anonKey = process.env.SUPABASE_ANON_KEY;
     if (!supabaseUrl || !anonKey) throw new ServiceUnavailableException('Supabase is not configured');
     const query = new URLSearchParams({
-      select: 'id,name,router_identity,gateway_kind,status,last_seen_at,created_at',
+      select: 'id,name,router_identity,gateway_kind,status,last_seen_at,router_connection_status,router_last_seen_at,created_at',
       site_id: `eq.${siteId}`,
       order: 'created_at.desc',
     });
