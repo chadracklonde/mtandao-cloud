@@ -4,10 +4,11 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { createHash, randomBytes } from 'node:crypto';
+import { URLSearchParams } from 'node:url';
 import { CreateRouterDto } from './create-router.dto';
 
 @Injectable()
-export class RoutersService {
+export interface RouterSummary {\n  id: string;\n  name: string;\n  router_identity: string;\n  gateway_kind: 'android' | 'linux';\n  status: string;\n  last_seen_at: string | null;\n  created_at: string;\n}\n\nexport class RoutersService {\n  async list(siteId: string, accessToken: string): Promise<RouterSummary[]> {\n    const supabaseUrl = process.env.SUPABASE_URL?.replace(/\\/$/, '');\n    const anonKey = process.env.SUPABASE_ANON_KEY;\n    if (!supabaseUrl || !anonKey) throw new ServiceUnavailableException('Supabase is not configured');\n    const query = new URLSearchParams({\n      select: 'id,name,router_identity,gateway_kind,status,last_seen_at,created_at',\n      site_id: `eq.${siteId}`,\n      order: 'created_at.desc',\n    });\n    let response: Response;\n    try {\n      response = await fetch(`${supabaseUrl}/rest/v1/routers?${query.toString()}`, {\n        headers: { apikey: anonKey, authorization: `Bearer ${accessToken}` },\n        signal: AbortSignal.timeout(10000),\n      });\n    } catch { throw new ServiceUnavailableException('Supabase is unavailable'); }\n    if (!response.ok) throw new BadGatewayException('Unable to list routers for this site');\n    return (await response.json()) as RouterSummary[];\n  }
   async register(
     siteId: string,
     dto: CreateRouterDto,
