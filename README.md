@@ -27,18 +27,18 @@ Plateforme centrale de gestion des sites Wi-Fi Mtandao.
 
 ## Démarrage
 
-Les applications et migrations seront ajoutées progressivement. Consulter `docs/architecture.md` et `docs/decisions.md`.
+Consulter `docs/architecture.md`, `docs/decisions.md` et le guide [authentification du tableau de bord](docs/dashboard-auth.md).
 
 ## État du projet
 
 Phase initiale : fondations et contrats. Aucun paiement réel ni accès routeur de production n'est activé à ce stade.
-
 
 ## Cahier des charges et documentation
 
 - [Cahier des charges Mtandao Cloud](docs/cahier-des-charges.md) — exigences produit et techniques de référence.
 - [Architecture](docs/architecture.md) — responsabilités des composants et flux.
 - [Décisions d'architecture](docs/decisions.md) — choix structurants.
+- [Authentification du tableau de bord](docs/dashboard-auth.md) — configuration Supabase Auth.
 - [Enrôlement Gateway](docs/gateway-enrollment.md) et [Heartbeat](docs/gateway-heartbeat.md).
 - [Mtandao Ticket — cahier des charges](https://github.com/chadracklonde/mtandao-ticket-app/blob/main/docs/cahier-des-charges.md).
 - [Mtandao Gateway — cahier des charges](https://github.com/chadracklonde/mtandao-gateway/blob/main/docs/cahier-des-charges.md).
