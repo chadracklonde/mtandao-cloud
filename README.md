@@ -39,6 +39,7 @@ Phase initiale : fondations et contrats. Aucun paiement réel ni accès routeur 
 - [Architecture](docs/architecture.md) — responsabilités des composants et flux.
 - [Décisions d'architecture](docs/decisions.md) — choix structurants.
 - [Authentification du tableau de bord](docs/dashboard-auth.md) — configuration Supabase Auth.
+- [Déploiement gratuit de l'API](docs/deploiement-gratuit.md) — configuration Render Free et limites de disponibilité.
 - [Enrôlement Gateway](docs/gateway-enrollment.md) et [Heartbeat](docs/gateway-heartbeat.md).
 - [Mtandao Ticket — cahier des charges](https://github.com/chadracklonde/mtandao-ticket-app/blob/main/docs/cahier-des-charges.md).
 - [Mtandao Gateway — cahier des charges](https://github.com/chadracklonde/mtandao-gateway/blob/main/docs/cahier-des-charges.md).
