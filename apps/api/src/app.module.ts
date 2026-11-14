@@ -9,6 +9,8 @@ import { RoutersController } from './routers/routers.controller';
 import { RoutersService } from './routers/routers.service';
 import { GatewayEnrollmentController } from './gateway/gateway-enrollment.controller';
 import { GatewayEnrollmentService } from './gateway/gateway-enrollment.service';
+import { GatewayHeartbeatController } from './gateway/gateway-heartbeat.controller';
+import { GatewayHeartbeatService } from './gateway/gateway-heartbeat.service';
 
 @Module({
   controllers: [
@@ -17,6 +19,7 @@ import { GatewayEnrollmentService } from './gateway/gateway-enrollment.service';
     InvitationsController,
     RoutersController,
     GatewayEnrollmentController,
+    GatewayHeartbeatController,
   ],
   providers: [
     SupabaseAuthGuard,
@@ -24,6 +27,7 @@ import { GatewayEnrollmentService } from './gateway/gateway-enrollment.service';
     InvitationsService,
     RoutersService,
     GatewayEnrollmentService,
+    GatewayHeartbeatService,
   ],
 })
 export class AppModule {}
