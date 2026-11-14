@@ -50,7 +50,13 @@ function routerLabel(status: Router['router_connection_status']): string {
 }
 
 export default function HomePage() {
-  const supabase = useMemo(() => createClient(), []);
+  const supabase = useMemo(() => {
+    try {
+      return createClient();
+    } catch {
+      return null;
+    }
+  }, []);
   const [session, setSession] = useState<Session | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [email, setEmail] = useState('');
@@ -65,6 +71,10 @@ export default function HomePage() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    if (!supabase) {
+      setAuthReady(true);
+      return;
+    }
     let active = true;
     supabase.auth.getSession().then(({ data }) => {
       if (active) {
@@ -112,6 +122,10 @@ export default function HomePage() {
   async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setAuthError('');
+    if (!supabase) {
+      setAuthError('La connexion Supabase n’est pas encore configurée.');
+      return;
+    }
     setAuthLoading(true);
     try {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
@@ -151,11 +165,23 @@ export default function HomePage() {
   }
 
   async function signOut() {
+    if (!supabase) return;
     await supabase.auth.signOut();
     setSession(null);
   }
 
   if (!authReady) return <main style={shellStyle}><p>Vérification de la session…</p></main>;
+
+  if (!supabase) return (
+    <main style={shellStyle}>
+      <p style={eyebrowStyle}>GESTION CENTRALISÉE DES SITES WI-FI</p>
+      <h1 style={{ fontSize: 34, margin: '8px 0' }}>Mtandao Cloud</h1>
+      <section style={panelStyle}>
+        <h2 style={{ fontSize: 20, marginTop: 0 }}>Configuration requise</h2>
+        <p style={mutedStyle}>Le tableau de bord est prêt, mais la connexion Supabase n’est pas encore configurée. Définissez NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY dans l’environnement de déploiement, puis relancez l’application.</p>
+      </section>
+    </main>
+  );
 
   if (!session) {
     return (
