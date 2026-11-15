@@ -102,3 +102,53 @@ test('register rejects a non-UUID response from Supabase', async () => {
     restoreEnvironment();
   }
 });
+
+test('revoke sends the authenticated site and router IDs to the protected RPC', async () => {
+  process.env.SUPABASE_URL = 'https://example.supabase.co/';
+  process.env.SUPABASE_ANON_KEY = 'public-anon-key';
+  let requestUrl = '';
+  let requestInit: RequestInit | undefined;
+  globalThis.fetch = (async (input: URL | RequestInfo, init?: RequestInit) => {
+    requestUrl = String(input);
+    requestInit = init;
+    return new Response(JSON.stringify('router-uuid'), {
+      status: 200, headers: { 'content-type': 'application/json' },
+    });
+  }) as typeof fetch;
+
+  try {
+    const result = await new RoutersService().revoke('site-uuid', 'router-uuid', 'user-access-token');
+    assert.equal(requestUrl, 'https://example.supabase.co/rest/v1/rpc/revoke_gateway');
+    assert.equal(requestInit?.method, 'POST');
+    const headers = new Headers(requestInit?.headers);
+    assert.equal(headers.get('apikey'), 'public-anon-key');
+    assert.equal(headers.get('authorization'), 'Bearer user-access-token');
+    assert.deepEqual(JSON.parse(String(requestInit?.body)), {
+      p_site_id: 'site-uuid', p_router_id: 'router-uuid',
+    });
+    assert.deepEqual(result, { routerId: 'router-uuid', status: 'revoked' });
+  } finally {
+    restoreEnvironment();
+  }
+});
+
+test('revoke rejects permission failures and malformed RPC results', async () => {
+  process.env.SUPABASE_URL = 'https://example.supabase.co';
+  process.env.SUPABASE_ANON_KEY = 'public-anon-key';
+  try {
+    globalThis.fetch = (async () => new Response('forbidden', { status: 403 })) as typeof fetch;
+    await assert.rejects(
+      new RoutersService().revoke('site-uuid', 'router-uuid', 'user-access-token'),
+      /Supabase rejected Gateway revocation/,
+    );
+    globalThis.fetch = (async () => new Response(JSON.stringify('another-router'), {
+      status: 200, headers: { 'content-type': 'application/json' },
+    })) as typeof fetch;
+    await assert.rejects(
+      new RoutersService().revoke('site-uuid', 'router-uuid', 'user-access-token'),
+      /invalid revocation result/,
+    );
+  } finally {
+    restoreEnvironment();
+  }
+});
