@@ -42,7 +42,7 @@ export class RoutersService {
   }
 
   async revoke(siteId: string, routerId: string, accessToken: string): Promise<{ routerId: string; status: 'revoked' }> {
-    const supabaseUrl = process.env.SUPABASE_URL?.replace(/\\/$/, '');
+    const supabaseUrl = process.env.SUPABASE_URL?.replace(/\/$/, '');
     const anonKey = process.env.SUPABASE_ANON_KEY;
     if (!supabaseUrl || !anonKey) throw new ServiceUnavailableException('Supabase is not configured');
 
