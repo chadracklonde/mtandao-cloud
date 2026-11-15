@@ -50,7 +50,12 @@ export class GatewayHeartbeatService {
       throw new BadGatewayException('Gateway heartbeat could not be recorded');
     }
 
-    const rows: unknown = await response.json();
+    let rows: unknown;
+    try {
+      rows = await response.json();
+    } catch {
+      throw new BadGatewayException('Supabase returned an invalid heartbeat response');
+    }
     if (!Array.isArray(rows) || rows.length !== 1) {
       throw new BadGatewayException('Supabase returned an invalid heartbeat response');
     }
