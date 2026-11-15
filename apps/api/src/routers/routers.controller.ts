@@ -29,6 +29,17 @@ export class RoutersController {
     return this.routersService.list(siteId, token);
   }
 
+  @Post(':routerId/revoke')
+  revoke(
+    @Param('siteId', new ParseUUIDPipe()) siteId: string,
+    @Param('routerId', new ParseUUIDPipe()) routerId: string,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<{ routerId: string; status: 'revoked' }> {
+    const token = readBearerToken(request.headers.authorization);
+    if (!token) throw new UnauthorizedException('Bearer token required');
+    return this.routersService.revoke(siteId, routerId, token);
+  }
+
   @Post()
   register(
     @Param('siteId', new ParseUUIDPipe()) siteId: string,
