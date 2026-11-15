@@ -25,13 +25,8 @@ on public.sync_events for insert
 to authenticated
 with check (public.has_site_membership(site_id));
 
-create policy "site members can read sync acknowledgements"
-on public.sync_events for select
-to authenticated
-using (public.has_site_membership(site_id));
-
 revoke all on public.sync_events from anon, authenticated;
-grant insert, select on public.sync_events to authenticated;
+grant insert on public.sync_events to authenticated;
 
 create or replace function public.ingest_sync_events(
   p_site_id uuid,
@@ -67,11 +62,11 @@ begin
       or (e.value->>'id') is null
       or (e.value->>'site_id') is distinct from p_site_id::text
       or (e.value->>'device_id') is null
-      or coalesce(e.value->>'event_type', '') = ''
+      or coalesce(btrim(e.value->>'event_type'), '') = ''
       or length(e.value->>'event_type') > 120
       or coalesce((e.value->>'schema_version')::integer, 0) < 1
       or (e.value->>'occurred_at') is null
-      or jsonb_typeof(e.value->'payload') <> 'object'
+      or coalesce(jsonb_typeof(e.value->'payload'), '') <> 'object'
       or length(coalesce(e.value->>'idempotency_key', '')) > 200
   ) then
     raise exception using errcode = '22023', message = 'one or more events are invalid';
