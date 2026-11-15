@@ -23,7 +23,7 @@ alter table public.sync_events enable row level security;
 create policy "site members can submit sync events"
 on public.sync_events for insert
 to authenticated
-with check (public.has_site_membership(site_id));
+with check (private.has_site_membership(site_id));
 
 revoke all on public.sync_events from anon, authenticated;
 grant insert on public.sync_events to authenticated;
@@ -42,7 +42,7 @@ declare
   v_inserted integer;
   v_ids uuid[];
 begin
-  if auth.uid() is null or not public.has_site_membership(p_site_id) then
+  if auth.uid() is null or not private.has_site_membership(p_site_id) then
     raise exception using errcode = '42501', message = 'site access denied';
   end if;
 
