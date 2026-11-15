@@ -72,6 +72,53 @@ export class RoutersService {
     return { routerId, status: 'revoked' };
   }
 
+  async reenroll(
+    siteId: string,
+    routerId: string,
+    accessToken: string,
+  ): Promise<{ routerId: string; enrollmentToken: string; expiresInSeconds: number }> {
+    const supabaseUrl = process.env.SUPABASE_URL?.replace(/\/$/, '');
+    const anonKey = process.env.SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !anonKey) throw new ServiceUnavailableException('Supabase is not configured');
+
+    const enrollmentToken = randomBytes(32).toString('hex');
+    const tokenHash = createHash('sha256').update(enrollmentToken).digest('hex');
+    let response: Response;
+    try {
+      response = await fetch(`${supabaseUrl}/rest/v1/rpc/reenroll_gateway`, {
+        method: 'POST',
+        headers: {
+          apikey: anonKey,
+          authorization: `Bearer ${accessToken}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          p_site_id: siteId,
+          p_router_id: routerId,
+          p_enrollment_token_hash: tokenHash,
+        }),
+        signal: AbortSignal.timeout(10000),
+      });
+    } catch {
+      throw new ServiceUnavailableException('Supabase is unavailable');
+    }
+
+    if (response.status === 401 || response.status === 403) {
+      throw new BadGatewayException('Supabase rejected Gateway re-enrollment');
+    }
+    if (!response.ok) throw new BadGatewayException('Gateway re-enrollment failed');
+
+    let result: unknown;
+    try {
+      result = await response.json();
+    } catch {
+      throw new BadGatewayException('Supabase returned an invalid re-enrollment response');
+    }
+    if (result !== routerId) throw new BadGatewayException('Supabase returned an invalid re-enrollment result');
+
+    return { routerId, enrollmentToken, expiresInSeconds: 900 };
+  }
+
   async register(
     siteId: string,
     dto: CreateRouterDto,
