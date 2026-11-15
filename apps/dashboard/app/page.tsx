@@ -276,6 +276,36 @@ export default function HomePage() {
     }
   }
 
+  async function reenrollRouter(router: Router) {
+    if (!session?.access_token || !siteId) return;
+    const confirmed = window.confirm(`Générer un nouveau code d’enrôlement pour « ${router.name} » ? L’ancien jeton reste révoqué.`);
+    if (!confirmed) return;
+    setError('');
+    setEnrollment(null);
+    setEnrollmentCopied(false);
+    setRegisteringRouter(true);
+    try {
+      const response = await fetch(`${API_BASE}/v1/sites/${encodeURIComponent(siteId)}/routers/${encodeURIComponent(router.id)}/reenroll`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          Accept: 'application/json',
+        },
+      });
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || `Réenrôlement impossible (HTTP ${response.status}).`);
+      }
+      const result = await response.json() as { routerId: string; enrollmentToken: string; expiresInSeconds: number };
+      setEnrollment(result);
+      await loadRouters();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Le réenrôlement a échoué.');
+    } finally {
+      setRegisteringRouter(false);
+    }
+  }
+
   async function signOut() {
     if (!supabase) return;
     await supabase.auth.signOut();
@@ -416,7 +446,7 @@ export default function HomePage() {
                     <td style={tdStyle}><Status value={routerLabel(router.router_connection_status)} good={router.router_connection_status === 'online'} /></td>
                     <td style={tdStyle}>{dateLabel(router.last_seen_at)}</td>
                     <td style={tdStyle}>{dateLabel(router.router_last_seen_at)}</td>
-                    <td style={tdStyle}>{router.status !== 'revoked' && (sites.find(site => site.id === siteId)?.role === 'owner' || sites.find(site => site.id === siteId)?.role === 'admin') ? <button type="button" onClick={() => void revokeRouter(router)} style={{ ...secondaryButtonStyle, padding: '7px 10px', fontSize: 12 }}>Révoquer</button> : router.status === 'revoked' ? 'Déjà révoqué' : '—'}</td>
+                    <td style={tdStyle}>{(sites.find(site => site.id === siteId)?.role === 'owner' || sites.find(site => site.id === siteId)?.role === 'admin') ? (router.status === 'revoked' ? <button type="button" disabled={registeringRouter} onClick={() => void reenrollRouter(router)} style={{ ...secondaryButtonStyle, padding: '7px 10px', fontSize: 12 }}>Réenrôler</button> : <button type="button" onClick={() => void revokeRouter(router)} style={{ ...secondaryButtonStyle, padding: '7px 10px', fontSize: 12 }}>Révoquer</button>) : '—'}</td>
                   </tr>
                 ))}</tbody>
               </table>
