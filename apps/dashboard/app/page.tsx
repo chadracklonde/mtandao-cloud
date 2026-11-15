@@ -253,6 +253,29 @@ export default function HomePage() {
     }
   }
 
+  async function revokeRouter(router: Router) {
+    if (!session?.access_token || !siteId) return;
+    const confirmed = window.confirm(`Révoquer la passerelle de « ${router.name} » ? Son jeton actuel sera immédiatement invalidé.`);
+    if (!confirmed) return;
+    setError('');
+    try {
+      const response = await fetch(`${API_BASE}/v1/sites/${encodeURIComponent(siteId)}/routers/${encodeURIComponent(router.id)}/revoke`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          Accept: 'application/json',
+        },
+      });
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || `Révocation impossible (HTTP ${response.status}).`);
+      }
+      await loadRouters();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'La révocation a échoué.');
+    }
+  }
+
   async function signOut() {
     if (!supabase) return;
     await supabase.auth.signOut();
@@ -383,7 +406,7 @@ export default function HomePage() {
             <div style={{ overflowX: 'auto', border: '1px solid #dce3ec', borderRadius: 12 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 760, textAlign: 'left' }}>
                 <thead><tr style={{ background: '#f5f7fa' }}>
-                  {['Nom / identité', 'Passerelle', 'Gateway', 'Routeur MikroTik', 'Dernier heartbeat', 'Dernière réponse MikroTik'].map(label => <th key={label} style={thStyle}>{label}</th>)}
+                  {['Nom / identité', 'Passerelle', 'Gateway', 'Routeur MikroTik', 'Dernier heartbeat', 'Dernière réponse MikroTik', 'Action'].map(label => <th key={label} style={thStyle}>{label}</th>)}
                 </tr></thead>
                 <tbody>{routers.map(router => (
                   <tr key={router.id} style={{ borderTop: '1px solid #e7edf3' }}>
@@ -393,6 +416,7 @@ export default function HomePage() {
                     <td style={tdStyle}><Status value={routerLabel(router.router_connection_status)} good={router.router_connection_status === 'online'} /></td>
                     <td style={tdStyle}>{dateLabel(router.last_seen_at)}</td>
                     <td style={tdStyle}>{dateLabel(router.router_last_seen_at)}</td>
+                    <td style={tdStyle}>{router.status !== 'revoked' && (sites.find(site => site.id === siteId)?.role === 'owner' || sites.find(site => site.id === siteId)?.role === 'admin') ? <button type="button" onClick={() => void revokeRouter(router)} style={{ ...secondaryButtonStyle, padding: '7px 10px', fontSize: 12 }}>Révoquer</button> : router.status === 'revoked' ? 'Déjà révoqué' : '—'}</td>
                   </tr>
                 ))}</tbody>
               </table>
