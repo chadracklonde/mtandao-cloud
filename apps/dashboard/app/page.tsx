@@ -70,6 +70,12 @@ export default function HomePage() {
   const [siteMessage, setSiteMessage] = useState('');
   const [siteId, setSiteId] = useState('');
   const [routers, setRouters] = useState<Router[]>([]);
+  const [routerName, setRouterName] = useState('');
+  const [routerIdentity, setRouterIdentity] = useState('');
+  const [gatewayKind, setGatewayKind] = useState<'android' | 'linux'>('linux');
+  const [registeringRouter, setRegisteringRouter] = useState(false);
+  const [enrollment, setEnrollment] = useState<{ routerId: string; enrollmentToken: string; expiresInSeconds: number } | null>(null);
+  const [enrollmentCopied, setEnrollmentCopied] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -210,6 +216,43 @@ export default function HomePage() {
     }
   }
 
+  async function registerRouter(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!session?.access_token || !siteId) return;
+    setError('');
+    setEnrollment(null);
+    setEnrollmentCopied(false);
+    setRegisteringRouter(true);
+    try {
+      const response = await fetch(`${API_BASE}/v1/sites/${encodeURIComponent(siteId)}/routers`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          name: routerName.trim(),
+          routerIdentity: routerIdentity.trim(),
+          gatewayKind,
+        }),
+      });
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || `Enregistrement du routeur impossible (HTTP ${response.status}).`);
+      }
+      const result = await response.json() as { routerId: string; enrollmentToken: string; expiresInSeconds: number };
+      setEnrollment(result);
+      setRouterName('');
+      setRouterIdentity('');
+      await loadRouters();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue pendant l’enregistrement du routeur.');
+    } finally {
+      setRegisteringRouter(false);
+    }
+  }
+
   async function signOut() {
     if (!supabase) return;
     await supabase.auth.signOut();
@@ -298,6 +341,37 @@ export default function HomePage() {
         )}
         {error && <p role="alert" style={errorStyle}>{error}</p>}
       </section>
+
+      {siteId && (
+        <section style={panelStyle}>
+          <h2 style={{ fontSize: 18, marginTop: 0 }}>Enregistrer un routeur</h2>
+          <p style={{ ...mutedStyle, fontSize: 13, marginBottom: 14 }}>Déclarez un équipement et générez un code temporaire pour enrôler sa passerelle Mtandao.</p>
+          <form onSubmit={registerRouter} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, alignItems: 'end' }}>
+            <label style={labelStyle}>Nom du routeur
+              <input required minLength={2} maxLength={120} value={routerName} onChange={e => setRouterName(e.target.value)} placeholder="Ex. Routeur principal" style={inputStyle} />
+            </label>
+            <label style={labelStyle}>Identité RouterOS
+              <input required minLength={2} maxLength={128} value={routerIdentity} onChange={e => setRouterIdentity(e.target.value)} placeholder="Identité affichée dans MikroTik" style={inputStyle} />
+            </label>
+            <label style={labelStyle}>Type de passerelle
+              <select value={gatewayKind} onChange={e => setGatewayKind(e.target.value as 'android' | 'linux')} style={inputStyle}>
+                <option value="linux">Linux (passerelle permanente)</option>
+                <option value="android">Android (passerelle mobile)</option>
+              </select>
+            </label>
+            <button type="submit" disabled={registeringRouter || routerName.trim().length < 2 || routerIdentity.trim().length < 2} style={{ ...buttonStyle, width: '100%' }}>{registeringRouter ? 'Enregistrement…' : 'Enregistrer le routeur'}</button>
+          </form>
+          {enrollment && (
+            <div role="status" style={{ marginTop: 16, padding: 14, border: '1px solid #d6a84f', borderRadius: 9, background: '#fffbeb' }}>
+              <strong>Code d’enrôlement généré</strong>
+              <p style={{ fontSize: 13 }}>Ce code est affiché une seule fois et expire dans 15 minutes. Conservez-le de manière sécurisée et ne le partagez pas publiquement.</p>
+              <code style={{ display: 'block', overflowWrap: 'anywhere', padding: 12, background: '#fff', borderRadius: 6, fontSize: 13 }}>{enrollment.enrollmentToken}</code>
+              <button type="button" onClick={() => { void navigator.clipboard.writeText(enrollment.enrollmentToken).then(() => setEnrollmentCopied(true)); }} style={{ ...secondaryButtonStyle, marginTop: 10 }}>{enrollmentCopied ? 'Code copié' : 'Copier le code'}</button>
+              <p style={{ fontSize: 12, color: '#854d0e', marginBottom: 0 }}>Après expiration, vous devrez générer un nouveau code. L’enregistrement du routeur ne signifie pas encore que le MikroTik est connecté.</p>
+            </div>
+          )}
+        </section>
+      )}
 
       {loaded && (
         <section>
