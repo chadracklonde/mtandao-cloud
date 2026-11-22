@@ -16,6 +16,8 @@ jobs:
           node-version: 20
       - run: npm install
       - run: npm run build
+      - name: Pilot smoke script tests
+        run: node --test scripts/pilot-smoke.test.mjs
       - run: npm run test
       - run: npm run lint
       - name: SQL migrations and integration tests
