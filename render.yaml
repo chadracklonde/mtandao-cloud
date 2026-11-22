@@ -2,6 +2,7 @@ services:
   - type: web
     name: mtandao-cloud-api
     runtime: node
+    # The free plan sleeps when idle: use an always-on plan for the pilot (webhooks, Gateway polling).
     plan: free
     region: frankfurt
     rootDir: .
@@ -18,3 +19,15 @@ services:
         value: sb_publishable_U2Njqhj2t8eDmxzRelG9nQ_lYqGUcKv
       - key: PORT
         value: "10000"
+      # Number of reverse proxies in front of the API (Render adds one), for rate limiting.
+      - key: TRUST_PROXY_HOPS
+        value: "1"
+      # Secrets: set them in the Render dashboard, never in this file (sync: false).
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: DASHBOARD_ORIGIN
+        sync: false
+      - key: PAYMENT_SANDBOX_WEBHOOK_SECRET
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

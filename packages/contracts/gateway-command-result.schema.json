@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mtandao Gateway Command Result",
+  "description": "Body of POST /v1/gateway/commands/{command_id}/result.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["success"],
+  "properties": {
+    "success": { "type": "boolean" },
+    "result": { "type": "object" },
+    "error": { "type": "string", "maxLength": 500 }
+  }
+}

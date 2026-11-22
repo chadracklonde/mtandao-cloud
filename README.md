@@ -31,7 +31,7 @@ Consulter `docs/architecture.md`, `docs/decisions.md` et le guide [authentificat
 
 ## État du projet
 
-Phase initiale : fondations et contrats. Aucun paiement réel ni accès routeur de production n'est activé à ce stade.
+Fondations, Gateway et synchronisation des ventes réalisés (Lots 0 à 5 et 7 à 9, outillage du pilote ; Lot 6 livré par correctifs pour le dépôt Gateway). Voir le [plan de réalisation](docs/plan-de-realisation.md). Aucun paiement réel ni accès routeur de production n'est activé à ce stade.
 
 ## Cahier des charges et documentation
 
@@ -41,6 +41,15 @@ Phase initiale : fondations et contrats. Aucun paiement réel ni accès routeur 
 - [Authentification du tableau de bord](docs/dashboard-auth.md) — configuration Supabase Auth.
 - [Déploiement gratuit de l'API](docs/deploiement-gratuit.md) — configuration Render Free et limites de disponibilité.
 - [Déploiement Google Cloud Run](docs/deploiement-google-cloud-run.md) — conteneur Docker, configuration et garde-fous de coûts.
+- [Plan de réalisation par lots](docs/plan-de-realisation.md).
+- [Audit et rôles](docs/audit-et-roles.md).
+- [Ventes, tickets et catalogue](docs/ventes-et-tickets.md).
+- [Rapports et rapprochement](docs/rapports-et-rapprochement.md).
+- [Commandes Gateway](docs/commandes-gateway.md).
+- [Paiements (sandbox)](docs/paiements.md).
+- [Portail client](docs/portail-client.md).
+- [Assistant analytique](docs/assistant-analytique.md).
+- [Mise en service](docs/mise-en-service.md), [plan du pilote](docs/plan-pilote.md) et [exploitation](docs/exploitation.md).
 - [Synchronisation hors ligne](docs/synchronisation-hors-ligne.md) — contrat d'événements, file locale, accusés de réception et reprise.
 - [Enrôlement Gateway](docs/gateway-enrollment.md) et [Heartbeat](docs/gateway-heartbeat.md).
 - [Mtandao Ticket — cahier des charges](https://github.com/chadracklonde/mtandao-ticket-app/blob/main/docs/cahier-des-charges.md).
