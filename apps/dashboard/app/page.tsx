@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { createClient } from '../lib/supabase/client';
 import { SiteReports } from './site-reports';
+import { SitePricing } from './site-pricing';
 
 type Site = {
   id: string;
@@ -426,6 +427,11 @@ export default function HomePage() {
           )}
         </section>
       )}
+
+      {siteId && session?.access_token && (() => {
+        const current = sites.find(site => site.id === siteId);
+        return <SitePricing apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} defaultCurrency={current?.default_currency ?? 'CDF'} canEdit={['owner', 'admin', 'manager'].includes(current?.role ?? '')} />;
+      })()}
 
       {siteId && session?.access_token && <SiteReports apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} />}
 
