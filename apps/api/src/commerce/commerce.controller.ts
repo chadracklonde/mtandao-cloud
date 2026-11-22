@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { readBearerToken, SupabaseAuthGuard } from '../auth/auth.guard';
 import { AuthenticatedRequest } from '../auth/auth.types';
-import { CreatePlanDto, ImportTicketStockDto, SetPlanActiveDto } from './commerce.dto';
+import { CreatePlanDto, ImportTicketStockDto, PRICING_TIERS, SetPlanActiveDto, SetTierPriceDto } from './commerce.dto';
 import { CommerceResource, CommerceService, LIST_MAX_LIMIT, Page } from './commerce.service';
 
 function bearer(request: AuthenticatedRequest): string {
@@ -91,6 +91,24 @@ export class CommerceController {
   @Get('plans')
   plans(@Param('siteId', new ParseUUIDPipe()) siteId: string, @Req() request: AuthenticatedRequest) {
     return this.commerce.listPlans(siteId, bearer(request));
+  }
+
+  @Get('pricing')
+  pricing(@Param('siteId', new ParseUUIDPipe()) siteId: string, @Req() request: AuthenticatedRequest) {
+    return this.commerce.sitePricing(siteId, bearer(request));
+  }
+
+  @Post('pricing/:tier')
+  setTierPrice(
+    @Param('siteId', new ParseUUIDPipe()) siteId: string,
+    @Param('tier') tier: string,
+    @Body() dto: SetTierPriceDto,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    if (!(PRICING_TIERS as readonly string[]).includes(tier)) {
+      throw new BadRequestException(`tier must be one of ${PRICING_TIERS.join(', ')}`);
+    }
+    return this.commerce.setTierPrice(siteId, tier, dto, bearer(request));
   }
 
   @Post('plans')

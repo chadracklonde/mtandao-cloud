@@ -175,3 +175,35 @@ test('setPlanActive and stockSummary check their results', async () => {
     restore();
   }
 });
+
+test('setTierPrice sends the tier and defaults, and sitePricing validates the result', async () => {
+  let url: URL | undefined;
+  let body: Record<string, unknown> = {};
+  let auth = '';
+  setup((u, init) => {
+    url = u;
+    body = JSON.parse(String(init?.body));
+    auth = new Headers(init?.headers).get('authorization') ?? '';
+    return json('plan-id');
+  });
+  try {
+    const svc = new CommerceService();
+    assert.deepEqual(await svc.setTierPrice('site', '24h', { price: 5 }, 'user-token'), { planId: 'plan-id' });
+    assert.equal(url?.pathname, '/rest/v1/rpc/set_tier_price');
+    assert.equal(auth, 'Bearer user-token');
+    assert.deepEqual(body, {
+      p_site_id: 'site', p_tier: '24h', p_price: 5, p_currency: null, p_active: true,
+      p_data_limit_mb: null, p_hotspot_profile: null, p_name: null,
+    });
+    setup(() => json({ code: '42501' }, 403));
+    await assert.rejects(() => svc.setTierPrice('s', '1h', { price: 1 }, 't'), /Insufficient permission/);
+    setup(() => json({ code: '22023' }, 400));
+    await assert.rejects(() => svc.setTierPrice('s', '1h', { price: 1 }, 't'), /Invalid request/);
+    setup(() => json({ complete: false, tiers: [] }));
+    assert.deepEqual(await svc.sitePricing('s', 't'), { complete: false, tiers: [] });
+    setup(() => json({ nope: 1 }));
+    await assert.rejects(() => svc.sitePricing('s', 't'), /invalid pricing/);
+  } finally {
+    restore();
+  }
+});

@@ -7,7 +7,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { URLSearchParams } from 'node:url';
-import { CreatePlanDto } from './commerce.dto';
+import { CreatePlanDto, SetTierPriceDto } from './commerce.dto';
 
 export type CommerceResource = 'sales' | 'tickets' | 'cash-entries' | 'payments';
 
@@ -181,6 +181,34 @@ export class CommerceService {
       },
       token,
       'create plan',
+    );
+    if (typeof result !== 'string') throw new BadGatewayException('Supabase returned an invalid plan identifier');
+    return { planId: result };
+  }
+
+  async sitePricing(siteId: string, token: string): Promise<unknown> {
+    const result = await this.rpc('site_pricing', { p_site_id: siteId }, token, 'read pricing');
+    if (!result || typeof result !== 'object' || !Array.isArray((result as { tiers?: unknown }).tiers)) {
+      throw new BadGatewayException('Supabase returned invalid pricing');
+    }
+    return result;
+  }
+
+  async setTierPrice(siteId: string, tier: string, dto: SetTierPriceDto, token: string): Promise<{ planId: string }> {
+    const result = await this.rpc(
+      'set_tier_price',
+      {
+        p_site_id: siteId,
+        p_tier: tier,
+        p_price: dto.price,
+        p_currency: dto.currency ?? null,
+        p_active: dto.active ?? true,
+        p_data_limit_mb: dto.dataLimitMb ?? null,
+        p_hotspot_profile: dto.hotspotProfile ?? null,
+        p_name: dto.name ?? null,
+      },
+      token,
+      'set tier price',
     );
     if (typeof result !== 'string') throw new BadGatewayException('Supabase returned an invalid plan identifier');
     return { planId: result };
