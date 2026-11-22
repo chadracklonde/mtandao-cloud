@@ -118,14 +118,14 @@ export function SiteStock({ apiBase, accessToken, siteId, canImport }: { apiBase
 
       {rows && rows.length > 0 && (
         <>
-          <div style={{ overflowX: 'auto', border: '1px solid #dce3ec', borderRadius: 12, marginBottom: 16 }}>
+          <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 12, marginBottom: 16 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 480, textAlign: 'left' }}>
-              <thead><tr style={{ background: '#f5f7fa' }}>{['Forfait', 'Disponibles', 'Réservés', 'Vendus'].map(label => <th key={label} style={th}>{label}</th>)}</tr></thead>
+              <thead><tr style={{ background: 'var(--surface-2)' }}>{['Forfait', 'Disponibles', 'Réservés', 'Vendus'].map(label => <th key={label} style={th}>{label}</th>)}</tr></thead>
               <tbody>
                 {rows.map(row => (
-                  <tr key={row.plan_id} style={{ borderTop: '1px solid #e7edf3' }}>
+                  <tr key={row.plan_id} style={{ borderTop: '1px solid var(--border)' }}>
                     <td style={td}><strong>{row.plan_name}</strong></td>
-                    <td style={{ ...td, color: row.available === 0 ? '#b45309' : undefined }}>{row.available}{row.available === 0 ? ' — vide' : ''}</td>
+                    <td style={{ ...td, color: row.available === 0 ? 'var(--warn)' : undefined }}>{row.available}{row.available === 0 ? ' — vide' : ''}</td>
                     <td style={td}>{row.reserved}</td>
                     <td style={td}>{row.sold}</td>
                   </tr>
@@ -169,12 +169,12 @@ export function SiteStock({ apiBase, accessToken, siteId, canImport }: { apiBase
   );
 }
 
-const panel = { border: '1px solid #dce3ec', borderRadius: 12, padding: 20, marginBottom: 28 };
-const muted = { color: '#52627a', margin: 0, fontSize: 13 };
+const panel = { border: '1px solid var(--border)', borderRadius: 12, padding: 20, marginBottom: 28 };
+const muted = { color: 'var(--muted-fg)', margin: 0, fontSize: 13 };
 const label = { display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 };
-const input = { border: '1px solid #cbd5e1', borderRadius: 7, padding: '9px 10px', fontSize: 14, width: '100%', boxSizing: 'border-box' as const };
-const button = { border: 0, borderRadius: 7, background: '#173b69', color: '#fff', padding: '10px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer' };
-const th = { padding: '13px 14px', fontSize: 12, color: '#475569', whiteSpace: 'nowrap' as const };
+const input = { border: '1px solid var(--border-strong)', borderRadius: 7, padding: '9px 10px', fontSize: 14, width: '100%', boxSizing: 'border-box' as const };
+const button = { border: 0, borderRadius: 7, background: 'var(--primary)', color: 'var(--on-primary)', padding: '10px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer' };
+const th = { padding: '13px 14px', fontSize: 12, color: 'var(--muted-fg)', whiteSpace: 'nowrap' as const };
 const td = { padding: 14, fontSize: 13, verticalAlign: 'middle' as const };
-const errorBox = { background: '#fff1f2', color: '#9f1239', padding: 12, borderRadius: 8, fontSize: 13, margin: 0 };
-const okBox = { background: '#dcfce7', color: '#166534', padding: 12, borderRadius: 8, fontSize: 13 };
+const errorBox = { background: 'var(--danger-bg)', color: 'var(--danger)', padding: 12, borderRadius: 8, fontSize: 13, margin: 0 };
+const okBox = { background: 'var(--ok-bg)', color: 'var(--ok)', padding: 12, borderRadius: 8, fontSize: 13 };

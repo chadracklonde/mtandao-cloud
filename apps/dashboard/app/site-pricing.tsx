@@ -127,9 +127,9 @@ export function SitePricing({
       {!pricing && !error && <p style={muted}>Chargement…</p>}
 
       {pricing && (
-        <div style={{ overflowX: 'auto', border: '1px solid #dce3ec', borderRadius: 12 }}>
+        <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 12 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720, textAlign: 'left' }}>
-            <thead><tr style={{ background: '#f5f7fa' }}>
+            <thead><tr style={{ background: 'var(--surface-2)' }}>
               {['Durée', 'Prix', 'Devise', 'Actif', 'Profil Hotspot', 'Données (Mo)', 'Stock', ''].map(label => <th key={label} style={th}>{label}</th>)}
             </tr></thead>
             <tbody>
@@ -138,8 +138,8 @@ export function SitePricing({
                 if (!draft) return null;
                 const id = `tier-${tier.tier}`;
                 return (
-                  <tr key={tier.tier} style={{ borderTop: '1px solid #e7edf3' }}>
-                    <td style={td}><strong>{tier.label}</strong>{!tier.configured && <><br /><span style={{ color: '#b45309', fontSize: 12 }}>À définir</span></>}</td>
+                  <tr key={tier.tier} style={{ borderTop: '1px solid var(--border)' }}>
+                    <td style={td}><strong>{tier.label}</strong>{!tier.configured && <><br /><span style={{ color: 'var(--warn)', fontSize: 12 }}>À définir</span></>}</td>
                     <td style={td}><input aria-label={`Prix ${tier.label}`} id={`${id}-price`} inputMode="decimal" disabled={!canEdit} value={draft.price} onChange={event => change(tier.tier, { price: event.target.value })} style={{ ...input, width: 90 }} /></td>
                     <td style={td}>
                       <select aria-label={`Devise ${tier.label}`} disabled={!canEdit} value={draft.currency} onChange={event => change(tier.tier, { currency: event.target.value })} style={input}>
@@ -165,12 +165,12 @@ export function SitePricing({
   );
 }
 
-const panel = { border: '1px solid #dce3ec', borderRadius: 12, padding: 20, marginBottom: 28 };
-const muted = { color: '#52627a', margin: 0, fontSize: 13 };
-const input = { border: '1px solid #cbd5e1', borderRadius: 7, padding: '8px 9px', fontSize: 14 };
-const button = { border: 0, borderRadius: 7, background: '#173b69', color: '#fff', padding: '9px 14px', fontSize: 13, fontWeight: 700, cursor: 'pointer' };
-const th = { padding: '13px 14px', fontSize: 12, color: '#475569', whiteSpace: 'nowrap' as const };
+const panel = { border: '1px solid var(--border)', borderRadius: 12, padding: 20, marginBottom: 28 };
+const muted = { color: 'var(--muted-fg)', margin: 0, fontSize: 13 };
+const input = { border: '1px solid var(--border-strong)', borderRadius: 7, padding: '8px 9px', fontSize: 14 };
+const button = { border: 0, borderRadius: 7, background: 'var(--primary)', color: 'var(--on-primary)', padding: '9px 14px', fontSize: 13, fontWeight: 700, cursor: 'pointer' };
+const th = { padding: '13px 14px', fontSize: 12, color: 'var(--muted-fg)', whiteSpace: 'nowrap' as const };
 const td = { padding: 14, fontSize: 13, verticalAlign: 'middle' as const };
-const errorBox = { background: '#fff1f2', color: '#9f1239', padding: 12, borderRadius: 8, fontSize: 13 };
-const okBox = { background: '#dcfce7', color: '#166534', padding: 12, borderRadius: 8, fontSize: 13 };
-const warnBox = { background: '#fffbeb', color: '#854d0e', padding: 12, borderRadius: 8, fontSize: 13 };
+const errorBox = { background: 'var(--danger-bg)', color: 'var(--danger)', padding: 12, borderRadius: 8, fontSize: 13 };
+const okBox = { background: 'var(--ok-bg)', color: 'var(--ok)', padding: 12, borderRadius: 8, fontSize: 13 };
+const warnBox = { background: 'var(--warn-bg)', color: 'var(--warn)', padding: 12, borderRadius: 8, fontSize: 13 };

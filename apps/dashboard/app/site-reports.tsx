@@ -196,7 +196,7 @@ export function SiteReports({ apiBase, accessToken, siteId, canResolve = false }
       <div role="tablist" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
         {TABS.map(item => (
           <button key={item.id} role="tab" aria-selected={tab === item.id} type="button" onClick={() => setTab(item.id)}
-            style={{ ...pill, background: tab === item.id ? '#173b69' : '#e8edf4', color: tab === item.id ? '#fff' : '#173b69' }}>
+            style={{ ...pill, background: tab === item.id ? 'var(--primary)' : 'var(--primary-soft)', color: tab === item.id ? 'var(--on-primary)' : 'var(--primary-fg)' }}>
             {item.label}
             {item.id === 'gaps' && tab === 'gaps' && rows.length > 0 ? ` (${rows.length}${truncated ? '+' : ''})` : ''}
           </button>
@@ -232,10 +232,10 @@ export function SiteReports({ apiBase, accessToken, siteId, canResolve = false }
       )}
 
       {rows.length > 0 && (
-        <div style={{ overflowX: 'auto', border: '1px solid #dce3ec', borderRadius: 12 }}>
+        <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 12 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640, textAlign: 'left' }}>
-            <thead><tr style={{ background: '#f5f7fa' }}>{headers(tab).map(h => <th key={h} style={th}>{h}</th>)}{tab === 'conflicts' && canResolve && <th style={th}>Décision</th>}</tr></thead>
-            <tbody>{rows.map((row, index) => <tr key={`${String(row.id ?? row.reference_id ?? row.period)}-${index}`} style={{ borderTop: '1px solid #e7edf3' }}>{cells(tab, row).map((cell, i) => <td key={i} style={td}>{cell}</td>)}{tab === 'conflicts' && canResolve && (
+            <thead><tr style={{ background: 'var(--surface-2)' }}>{headers(tab).map(h => <th key={h} style={th}>{h}</th>)}{tab === 'conflicts' && canResolve && <th style={th}>Décision</th>}</tr></thead>
+            <tbody>{rows.map((row, index) => <tr key={`${String(row.id ?? row.reference_id ?? row.period)}-${index}`} style={{ borderTop: '1px solid var(--border)' }}>{cells(tab, row).map((cell, i) => <td key={i} style={td}>{cell}</td>)}{tab === 'conflicts' && canResolve && (
               <td style={td}><div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 <button type="button" disabled={resolving === String(row.id)} onClick={() => void resolve(String(row.id), 'keep_cloud')} style={pill} title="La version déjà enregistrée par le Cloud reste la référence">Garder la version du Cloud</button>
                 <button type="button" disabled={resolving === String(row.id)} onClick={() => void resolve(String(row.id), 'dismissed')} style={pill} title="Écarter sans autre action">Écarter</button>
@@ -273,11 +273,11 @@ function cells(tab: Tab, row: Row): string[] {
   return [when(row.occurred_at), GAP_LABELS[String(row.kind)] ?? String(row.kind), JSON.stringify(row.details ?? {})];
 }
 
-const panel = { border: '1px solid #dce3ec', borderRadius: 12, padding: 20, marginBottom: 28 };
+const panel = { border: '1px solid var(--border)', borderRadius: 12, padding: 20, marginBottom: 28 };
 const label = { display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 };
-const input = { border: '1px solid #cbd5e1', borderRadius: 7, padding: '9px 10px', fontSize: 14 };
-const pill = { border: 0, borderRadius: 20, padding: '8px 14px', fontSize: 13, fontWeight: 700, cursor: 'pointer', background: '#e8edf4', color: '#173b69' };
-const muted = { color: '#52627a', margin: 0, fontSize: 13 };
-const errorBox = { background: '#fff1f2', color: '#9f1239', padding: 12, borderRadius: 8, fontSize: 13 };
-const th = { padding: '13px 14px', fontSize: 12, color: '#475569', whiteSpace: 'nowrap' as const };
+const input = { border: '1px solid var(--border-strong)', borderRadius: 7, padding: '9px 10px', fontSize: 14 };
+const pill = { border: 0, borderRadius: 20, padding: '8px 14px', fontSize: 13, fontWeight: 700, cursor: 'pointer', background: 'var(--primary-soft)', color: 'var(--primary-fg)' };
+const muted = { color: 'var(--muted-fg)', margin: 0, fontSize: 13 };
+const errorBox = { background: 'var(--danger-bg)', color: 'var(--danger)', padding: 12, borderRadius: 8, fontSize: 13 };
+const th = { padding: '13px 14px', fontSize: 12, color: 'var(--muted-fg)', whiteSpace: 'nowrap' as const };
 const td = { padding: 14, fontSize: 13, verticalAlign: 'top' as const, overflowWrap: 'anywhere' as const };

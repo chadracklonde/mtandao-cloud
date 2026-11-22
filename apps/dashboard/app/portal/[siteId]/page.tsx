@@ -213,10 +213,10 @@ function Portal() {
                 aria-checked={planId === plan.id}
                 disabled={!plan.in_stock}
                 onClick={() => setPlanId(plan.id)}
-                style={{ ...planButton, borderColor: planId === plan.id ? '#173b69' : '#cbd5e1', background: planId === plan.id ? '#eef4fb' : '#fff', opacity: plan.in_stock ? 1 : 0.5 }}
+                style={{ ...planButton, borderColor: planId === plan.id ? 'var(--primary)' : 'var(--border-strong)', background: planId === plan.id ? 'var(--primary-soft)' : 'var(--surface)', opacity: plan.in_stock ? 1 : 0.5 }}
               >
                 <strong>{plan.name}</strong>
-                <span style={{ color: '#52627a', fontSize: 13 }}>{duration(plan.duration_minutes)}{plan.data_limit_mb ? ` · ${plan.data_limit_mb} Mo` : ''}{plan.in_stock ? '' : ' · épuisé'}</span>
+                <span style={{ color: 'var(--muted-fg)', fontSize: 13 }}>{duration(plan.duration_minutes)}{plan.data_limit_mb ? ` · ${plan.data_limit_mb} Mo` : ''}{plan.in_stock ? '' : ' · épuisé'}</span>
                 <span style={{ fontWeight: 700 }}>{money(plan.price, plan.currency)}</span>
               </button>
             ))}
@@ -243,7 +243,7 @@ function PaymentState({ status, onCopy, copied }: { status: Status; onCopy: () =
       <div role="status">
         <p style={{ ...successBox, fontWeight: 700 }}>Paiement reçu, votre accès est actif.</p>
         <p style={{ marginBottom: 6 }}>Votre code de connexion ({duration(status.ticket.duration_minutes)}) :</p>
-        <code style={{ display: 'block', textAlign: 'center', fontSize: 26, letterSpacing: 2, padding: 16, background: '#f1f5f9', borderRadius: 10, overflowWrap: 'anywhere' }}>{status.ticket.code}</code>
+        <code style={{ display: 'block', textAlign: 'center', fontSize: 26, letterSpacing: 2, padding: 16, background: 'var(--surface-2)', borderRadius: 10, overflowWrap: 'anywhere' }}>{status.ticket.code}</code>
         <button type="button" onClick={onCopy} style={{ ...secondaryButton, marginTop: 10 }}>{copied ? 'Code copié' : 'Copier le code'}</button>
         <p style={muted}>Retournez à la page de connexion Wi-Fi et saisissez ce code comme identifiant <em>et</em> mot de passe. Conservez-le jusqu’à la fin de votre forfait.</p>
         {reference}
@@ -266,8 +266,8 @@ function PaymentState({ status, onCopy, copied }: { status: Status; onCopy: () =
 
 function Shell({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
-    <main style={{ maxWidth: 480, margin: '0 auto', padding: '28px 16px 48px', fontFamily: 'Arial, sans-serif', color: '#172033' }}>
-      <p style={{ color: '#52627a', fontSize: 12, letterSpacing: 1, fontWeight: 700, margin: 0 }}>WI-FI</p>
+    <main id="contenu" style={{ maxWidth: 480, margin: '0 auto', padding: '28px 16px 48px', color: 'var(--fg)' }}>
+      <p style={{ color: 'var(--muted-fg)', fontSize: 12, letterSpacing: 1, fontWeight: 700, margin: 0 }}>WI-FI</p>
       <h1 style={{ fontSize: 24, margin: '4px 0 20px' }}>{title ?? 'Connexion Wi-Fi'}</h1>
       {children}
     </main>
@@ -282,11 +282,11 @@ export default function PortalPage() {
   );
 }
 
-const muted = { color: '#52627a', fontSize: 13, margin: '10px 0 0' };
-const input = { width: '100%', boxSizing: 'border-box' as const, border: '1px solid #cbd5e1', borderRadius: 8, padding: '13px 12px', fontSize: 16 };
-const planButton = { display: 'grid', gap: 4, textAlign: 'left' as const, border: '2px solid', borderRadius: 10, padding: '12px 14px', fontSize: 15, cursor: 'pointer', color: '#172033' };
-const primaryButton = { width: '100%', border: 0, borderRadius: 8, background: '#173b69', color: '#fff', padding: '14px 18px', fontSize: 16, fontWeight: 700, cursor: 'pointer' };
-const secondaryButton = { border: 0, borderRadius: 8, background: '#e8edf4', color: '#173b69', padding: '11px 16px', fontSize: 14, fontWeight: 700, cursor: 'pointer', marginTop: 16 };
-const errorBox = { background: '#fff1f2', color: '#9f1239', padding: 12, borderRadius: 8, fontSize: 14, margin: 0 };
-const infoBox = { background: '#eef4fb', color: '#173b69', padding: 12, borderRadius: 8, fontSize: 14, margin: 0 };
-const successBox = { background: '#dcfce7', color: '#166534', padding: 12, borderRadius: 8, fontSize: 14, margin: '0 0 14px' };
+const muted = { color: 'var(--muted-fg)', fontSize: 13, margin: '10px 0 0' };
+const input = { width: '100%', boxSizing: 'border-box' as const, border: '1px solid var(--border-strong)', borderRadius: 8, padding: '13px 12px', fontSize: 16 };
+const planButton = { display: 'grid', gap: 4, textAlign: 'left' as const, border: '2px solid', borderRadius: 10, padding: '12px 14px', fontSize: 15, cursor: 'pointer', color: 'var(--fg)' };
+const primaryButton = { width: '100%', border: 0, borderRadius: 8, background: 'var(--primary)', color: 'var(--on-primary)', padding: '14px 18px', fontSize: 16, fontWeight: 700, cursor: 'pointer' };
+const secondaryButton = { border: 0, borderRadius: 8, background: 'var(--primary-soft)', color: 'var(--primary-fg)', padding: '11px 16px', fontSize: 14, fontWeight: 700, cursor: 'pointer', marginTop: 16 };
+const errorBox = { background: 'var(--danger-bg)', color: 'var(--danger)', padding: 12, borderRadius: 8, fontSize: 14, margin: 0 };
+const infoBox = { background: 'var(--primary-soft)', color: 'var(--primary-fg)', padding: 12, borderRadius: 8, fontSize: 14, margin: 0 };
+const successBox = { background: 'var(--ok-bg)', color: 'var(--ok)', padding: 12, borderRadius: 8, fontSize: 14, margin: '0 0 14px' };

@@ -317,10 +317,10 @@ export default function HomePage() {
     setSession(null);
   }
 
-  if (!authReady) return <main style={shellStyle}><p>Vérification de la session…</p></main>;
+  if (!authReady) return <main id="contenu" style={shellStyle}><p>Vérification de la session…</p></main>;
 
   if (!supabase) return (
-    <main style={shellStyle}>
+    <main id="contenu" style={shellStyle}>
       <p style={eyebrowStyle}>GESTION CENTRALISÉE DES SITES WI-FI</p>
       <h1 style={{ fontSize: 34, margin: '8px 0' }}>Mtandao Cloud</h1>
       <section style={panelStyle}>
@@ -332,7 +332,7 @@ export default function HomePage() {
 
   if (!session) {
     return (
-      <main style={shellStyle}>
+      <main id="contenu" style={shellStyle}>
         <header style={{ marginBottom: 32 }}>
           <p style={eyebrowStyle}>GESTION CENTRALISÉE DES SITES WI-FI</p>
           <h1 style={{ fontSize: 34, margin: '8px 0' }}>Mtandao Cloud</h1>
@@ -357,7 +357,7 @@ export default function HomePage() {
   }
 
   return (
-    <main style={shellStyle}>
+    <main id="contenu" style={shellStyle}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: 16, marginBottom: 32, flexWrap: 'wrap' }}>
         <div>
           <p style={eyebrowStyle}>GESTION CENTRALISÉE DES SITES WI-FI</p>
@@ -367,6 +367,17 @@ export default function HomePage() {
         <button type="button" onClick={signOut} style={secondaryButtonStyle}>Se déconnecter</button>
       </header>
 
+      <nav className="section-nav" aria-label="Sections du tableau de bord">
+        <a href="#sites">Sites</a>
+        <a href="#routeurs">Routeurs</a>
+        <a href="#pret">Mise en service</a>
+        <a href="#tarifs">Tarifs</a>
+        <a href="#stock">Stock</a>
+        <a href="#ventes">Ventes</a>
+        <a href="#assistant">Assistant</a>
+      </nav>
+
+      <div id="sites" />
       <section style={panelStyle}>
         <h2 style={{ fontSize: 18, marginTop: 0 }}>Créer un site Wi-Fi</h2>
         <form onSubmit={createSite} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, alignItems: 'end' }}>
@@ -382,7 +393,7 @@ export default function HomePage() {
           <button type="submit" disabled={creatingSite || newSiteName.trim().length < 2} style={{ ...buttonStyle, width: '100%' }}>{creatingSite ? 'Création…' : 'Créer le site'}</button>
         </form>
         <p style={{ ...mutedStyle, fontSize: 12, marginTop: 10 }}>Fuseau horaire : Africa/Lubumbashi</p>
-        {siteMessage && <p role="status" style={{ color: '#166534', fontSize: 13 }}>{siteMessage}</p>}
+        {siteMessage && <p role="status" style={{ color: 'var(--ok)', fontSize: 13 }}>{siteMessage}</p>}
       </section>
 
       <section style={panelStyle}>
@@ -400,6 +411,7 @@ export default function HomePage() {
         {error && <p role="alert" style={errorStyle}>{error}</p>}
       </section>
 
+      <div id="routeurs" />
       {siteId && (
         <section style={panelStyle}>
           <h2 style={{ fontSize: 18, marginTop: 0 }}>Enregistrer un routeur</h2>
@@ -420,30 +432,35 @@ export default function HomePage() {
             <button type="submit" disabled={registeringRouter || routerName.trim().length < 2 || routerIdentity.trim().length < 2} style={{ ...buttonStyle, width: '100%' }}>{registeringRouter ? 'Enregistrement…' : 'Enregistrer le routeur'}</button>
           </form>
           {enrollment && (
-            <div role="status" style={{ marginTop: 16, padding: 14, border: '1px solid #d6a84f', borderRadius: 9, background: '#fffbeb' }}>
+            <div role="status" style={{ marginTop: 16, padding: 14, border: '1px solid var(--warn-border)', borderRadius: 9, background: 'var(--warn-bg)' }}>
               <strong>Code d’enrôlement généré</strong>
               <p style={{ fontSize: 13 }}>Ce code est affiché une seule fois et expire dans 15 minutes. Conservez-le de manière sécurisée et ne le partagez pas publiquement.</p>
-              <code style={{ display: 'block', overflowWrap: 'anywhere', padding: 12, background: '#fff', borderRadius: 6, fontSize: 13 }}>{enrollment.enrollmentToken}</code>
+              <code style={{ display: 'block', overflowWrap: 'anywhere', padding: 12, background: 'var(--surface)', borderRadius: 6, fontSize: 13 }}>{enrollment.enrollmentToken}</code>
               <button type="button" onClick={() => { void navigator.clipboard.writeText(enrollment.enrollmentToken).then(() => setEnrollmentCopied(true)); }} style={{ ...secondaryButtonStyle, marginTop: 10 }}>{enrollmentCopied ? 'Code copié' : 'Copier le code'}</button>
-              <p style={{ fontSize: 12, color: '#854d0e', marginBottom: 0 }}>Après expiration, vous devrez générer un nouveau code. L’enregistrement du routeur ne signifie pas encore que le MikroTik est connecté.</p>
+              <p style={{ fontSize: 12, color: 'var(--warn)', marginBottom: 0 }}>Après expiration, vous devrez générer un nouveau code. L’enregistrement du routeur ne signifie pas encore que le MikroTik est connecté.</p>
             </div>
           )}
         </section>
       )}
 
+      <div id="pret" />
       {siteId && session?.access_token && <SiteReadiness apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} />}
 
+      <div id="tarifs" />
       {siteId && session?.access_token && (() => {
         const current = sites.find(site => site.id === siteId);
         return <SitePricing apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} defaultCurrency={current?.default_currency ?? 'CDF'} canEdit={['owner', 'admin', 'manager'].includes(current?.role ?? '')} />;
       })()}
 
+      <div id="stock" />
       {siteId && session?.access_token && (() => {
         const current = sites.find(site => site.id === siteId);
         return <SiteStock apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} canImport={['owner', 'admin', 'manager'].includes(current?.role ?? '')} />;
       })()}
 
+      <div id="ventes" />
       {siteId && session?.access_token && <SiteReports apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} canResolve={['owner', 'admin', 'manager'].includes(sites.find(site => site.id === siteId)?.role ?? '')} />}
+      <div id="assistant" />
       {siteId && session?.access_token && <SiteAssistant apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} />}
 
       {loaded && (
@@ -453,14 +470,14 @@ export default function HomePage() {
             <span style={mutedStyle}>{routers.length} équipement(s)</span>
           </div>
           {routers.length === 0 ? <p style={mutedStyle}>Aucun routeur enregistré pour ce site.</p> : (
-            <div style={{ overflowX: 'auto', border: '1px solid #dce3ec', borderRadius: 12 }}>
+            <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 12 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 760, textAlign: 'left' }}>
-                <thead><tr style={{ background: '#f5f7fa' }}>
+                <thead><tr style={{ background: 'var(--surface-2)' }}>
                   {['Nom / identité', 'Passerelle', 'Gateway', 'Routeur MikroTik', 'Dernier heartbeat', 'Dernière réponse MikroTik', 'Action'].map(label => <th key={label} style={thStyle}>{label}</th>)}
                 </tr></thead>
                 <tbody>{routers.map(router => (
-                  <tr key={router.id} style={{ borderTop: '1px solid #e7edf3' }}>
-                    <td style={tdStyle}><strong>{router.name}</strong><br /><span style={{ color: '#64748b', fontSize: 12 }}>{router.router_identity}</span></td>
+                  <tr key={router.id} style={{ borderTop: '1px solid var(--border)' }}>
+                    <td style={tdStyle}><strong>{router.name}</strong><br /><span style={{ color: 'var(--muted-fg)', fontSize: 12 }}>{router.router_identity}</span></td>
                     <td style={tdStyle}>{router.gateway_kind === 'android' ? 'Android' : 'Linux'}</td>
                     <td style={tdStyle}><Status value={gatewayLabel(router.status)} good={router.status === 'online'} /></td>
                     <td style={tdStyle}><Status value={routerLabel(router.router_connection_status)} good={router.router_connection_status === 'online'} /></td>
@@ -474,23 +491,23 @@ export default function HomePage() {
           )}
         </section>
       )}
-      <footer style={{ color: '#94a3b8', fontSize: 12, marginTop: 48 }}>Mtandao Cloud · Les états affichés dépendent des dernières données reçues par l'API.</footer>
+      <footer style={{ color: 'var(--muted-fg)', fontSize: 13, marginTop: 48 }}>Mtandao Cloud · Les états affichés dépendent des dernières données reçues par l'API.</footer>
     </main>
   );
 }
 
 function Status({ value, good }: { value: string; good: boolean }) {
-  return <span style={{ display: 'inline-block', padding: '5px 9px', borderRadius: 20, background: good ? '#dcfce7' : '#f1f5f9', color: good ? '#166534' : '#475569', fontSize: 12, fontWeight: 700 }}>{value}</span>;
+  return <span style={{ display: 'inline-block', padding: '5px 9px', borderRadius: 20, background: good ? 'var(--ok-bg)' : 'var(--surface-2)', color: good ? 'var(--ok)' : 'var(--muted-fg)', fontSize: 12, fontWeight: 700 }}>{value}</span>;
 }
 
-const shellStyle = { maxWidth: 1120, margin: '0 auto', padding: '48px 24px', fontFamily: 'Arial, sans-serif', color: '#172033' };
-const eyebrowStyle = { color: '#52627a', fontSize: 13, letterSpacing: 1, fontWeight: 700 };
-const mutedStyle = { color: '#52627a', margin: 0 };
-const panelStyle = { border: '1px solid #dce3ec', borderRadius: 12, padding: 20, marginBottom: 28 };
+const shellStyle = { maxWidth: 1120, margin: '0 auto', padding: '48px 24px', color: 'var(--fg)' };
+const eyebrowStyle = { color: 'var(--muted-fg)', fontSize: 13, letterSpacing: 1, fontWeight: 700 };
+const mutedStyle = { color: 'var(--muted-fg)', margin: 0 };
+const panelStyle = { border: '1px solid var(--border)', borderRadius: 12, padding: 20, marginBottom: 28 };
 const labelStyle = { display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 };
-const inputStyle = { width: '100%', boxSizing: 'border-box' as const, border: '1px solid #cbd5e1', borderRadius: 7, padding: '11px 12px', fontSize: 14, marginTop: 6 };
-const buttonStyle = { border: 0, borderRadius: 7, background: '#173b69', color: 'white', padding: '12px 18px', fontSize: 14, fontWeight: 700, cursor: 'pointer' };
-const secondaryButtonStyle = { ...buttonStyle, background: '#e8edf4', color: '#173b69' };
-const errorStyle = { background: '#fff1f2', color: '#9f1239', padding: 12, borderRadius: 8, fontSize: 13 };
-const thStyle = { padding: '13px 14px', fontSize: 12, color: '#475569', whiteSpace: 'nowrap' as const };
+const inputStyle = { width: '100%', boxSizing: 'border-box' as const, border: '1px solid var(--border-strong)', borderRadius: 7, padding: '11px 12px', fontSize: 14, marginTop: 6 };
+const buttonStyle = { border: 0, borderRadius: 7, background: 'var(--primary)', color: 'var(--on-primary)', padding: '12px 18px', fontSize: 14, fontWeight: 700, cursor: 'pointer' };
+const secondaryButtonStyle = { ...buttonStyle, background: 'var(--primary-soft)', color: 'var(--primary-fg)' };
+const errorStyle = { background: 'var(--danger-bg)', color: 'var(--danger)', padding: 12, borderRadius: 8, fontSize: 13 };
+const thStyle = { padding: '13px 14px', fontSize: 12, color: 'var(--muted-fg)', whiteSpace: 'nowrap' as const };
 const tdStyle = { padding: '14px', fontSize: 13, verticalAlign: 'top' as const };

@@ -97,7 +97,7 @@ export function SiteAssistant({ apiBase, accessToken, siteId }: { apiBase: strin
             {turn.tools && turn.tools.length > 0 && <div style={{ ...muted, marginTop: 8, fontSize: 12 }}>Données consultées : {turn.tools.join(', ')}</div>}
           </div>
         ))}
-        {loading && <div style={{ ...answerBubble, color: '#52627a' }}>Analyse en cours…</div>}
+        {loading && <div style={{ ...answerBubble, color: 'var(--muted-fg)' }}>Analyse en cours…</div>}
         <div ref={end} />
       </div>
 
@@ -122,12 +122,12 @@ export function SiteAssistant({ apiBase, accessToken, siteId }: { apiBase: strin
   );
 }
 
-const panel = { border: '1px solid #dce3ec', borderRadius: 12, padding: 20, marginBottom: 28 };
-const muted = { color: '#52627a', margin: 0, fontSize: 13 };
-const input = { width: '100%', boxSizing: 'border-box' as const, border: '1px solid #cbd5e1', borderRadius: 8, padding: '12px', fontSize: 14 };
-const button = { border: 0, borderRadius: 8, background: '#173b69', color: '#fff', padding: '12px 18px', fontSize: 14, fontWeight: 700, cursor: 'pointer' };
-const secondary = { ...button, background: '#e8edf4', color: '#173b69' };
-const chip = { border: '1px solid #cbd5e1', borderRadius: 20, background: '#fff', color: '#173b69', padding: '8px 12px', fontSize: 13, cursor: 'pointer' };
-const userBubble = { justifySelf: 'end', maxWidth: '85%', background: '#173b69', color: '#fff', padding: '10px 14px', borderRadius: 12, fontSize: 14 };
-const answerBubble = { justifySelf: 'start', maxWidth: '95%', background: '#f1f5f9', color: '#172033', padding: '12px 14px', borderRadius: 12, fontSize: 14 };
-const errorBox = { background: '#fff1f2', color: '#9f1239', padding: 12, borderRadius: 8, fontSize: 13 };
+const panel = { border: '1px solid var(--border)', borderRadius: 12, padding: 20, marginBottom: 28 };
+const muted = { color: 'var(--muted-fg)', margin: 0, fontSize: 13 };
+const input = { width: '100%', boxSizing: 'border-box' as const, border: '1px solid var(--border-strong)', borderRadius: 8, padding: '12px', fontSize: 14 };
+const button = { border: 0, borderRadius: 8, background: 'var(--primary)', color: 'var(--on-primary)', padding: '12px 18px', fontSize: 14, fontWeight: 700, cursor: 'pointer' };
+const secondary = { ...button, background: 'var(--primary-soft)', color: 'var(--primary-fg)' };
+const chip = { border: '1px solid var(--border-strong)', borderRadius: 20, background: 'var(--surface)', color: 'var(--primary-fg)', padding: '8px 12px', fontSize: 13, cursor: 'pointer' };
+const userBubble = { justifySelf: 'end', maxWidth: '85%', background: 'var(--primary)', color: 'var(--on-primary)', padding: '10px 14px', borderRadius: 12, fontSize: 14 };
+const answerBubble = { justifySelf: 'start', maxWidth: '95%', background: 'var(--surface-2)', color: 'var(--fg)', padding: '12px 14px', borderRadius: 12, fontSize: 14 };
+const errorBox = { background: 'var(--danger-bg)', color: 'var(--danger)', padding: 12, borderRadius: 8, fontSize: 13 };
