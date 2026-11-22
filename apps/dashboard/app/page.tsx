@@ -6,6 +6,7 @@ import { createClient } from '../lib/supabase/client';
 import { SiteReports } from './site-reports';
 import { SitePricing } from './site-pricing';
 import { SiteAssistant } from './site-assistant';
+import { SiteReadiness } from './site-readiness';
 
 type Site = {
   id: string;
@@ -428,6 +429,8 @@ export default function HomePage() {
           )}
         </section>
       )}
+
+      {siteId && session?.access_token && <SiteReadiness apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} />}
 
       {siteId && session?.access_token && (() => {
         const current = sites.find(site => site.id === siteId);
