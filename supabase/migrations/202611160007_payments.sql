@@ -9,15 +9,17 @@ alter table public.plans
   add column if not exists hotspot_profile text
     check (hotspot_profile is null or hotspot_profile ~ '^[A-Za-z0-9 _.-]{1,120}$');
 
-drop function if exists public.create_plan(uuid, text, numeric, text, integer, integer);
+-- Overload of create_plan that also takes the Hotspot profile. The profile has no default
+-- on purpose: the 6-argument version keeps working unchanged and the two never compete for
+-- the same call, so nothing has to be dropped.
 create or replace function public.create_plan(
   p_site_id uuid,
   p_name text,
   p_price numeric,
   p_currency text,
   p_duration_minutes integer,
-  p_data_limit_mb integer default null,
-  p_hotspot_profile text default null
+  p_data_limit_mb integer,
+  p_hotspot_profile text
 )
 returns uuid
 language plpgsql
@@ -50,11 +52,8 @@ revoke all on function public.create_plan(uuid, text, numeric, text, integer, in
 grant execute on function public.create_plan(uuid, text, numeric, text, integer, integer, text) to authenticated;
 
 -- Sales can now originate from a payment instead of a synchronized event.
-alter table public.sales alter column source_event_id drop not null;
-alter table public.sales alter column device_id drop not null;
+-- (The nullability change and its check constraint are in migration 011.)
 alter table public.sales add column if not exists payment_id uuid;
-alter table public.sales
-  add constraint sales_origin_check check (source_event_id is not null or payment_id is not null);
 create unique index if not exists sales_payment_idx on public.sales(site_id, payment_id) where payment_id is not null;
 
 create table if not exists public.payments (
