@@ -13,6 +13,8 @@ if [ "$(id -u)" = 0 ]; then
   run() { su postgres -s /bin/bash -c "$*"; }
 else run() { bash -c "$*"; }; fi
 run "'$bin/initdb' -D '$dir/data' -A trust >/dev/null"
+# Unix socket only: no TCP port to collide with another run.
+echo "listen_addresses = ''" >> "$dir/data/postgresql.conf"
 run "'$bin/pg_ctl' -D '$dir/data' -o '-p $port -k $dir' -l '$dir/log' -w start >/dev/null"
 psql_() { run "'$bin/psql' -h '$dir' -p $port -v ON_ERROR_STOP=1 -q $*"; }
 
