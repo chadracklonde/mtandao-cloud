@@ -5,7 +5,7 @@ Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9)
 | Lot | Contenu | Phase | Statut |
 | --- | --- | --- | --- |
 | 1 | Clôture de la synchronisation | 3 | Terminé, hors application sur Supabase |
-| 2 | Audit et rôles | 2 | À faire |
+| 2 | Audit et rôles | 2 | Terminé, hors application sur Supabase |
 | 3 | Ventes et tickets côté API | 3-4 | À faire |
 | 4 | Dashboard, rapports, rapprochement | 4 | À faire |
 | 5 | Commandes typées vers le Gateway | 5 | À faire |
@@ -34,7 +34,7 @@ Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), route
 - Contrôle des rôles (owner, admin, manager, seller, technician, viewer) couvert par des tests.
 - Endpoint de consultation de l'audit réservé aux admins.
 
-**Critère de sortie** : chaque action sensible laisse une trace ; deux sites restent isolés.
+**Critère de sortie** : chaque action sensible laisse une trace ; deux sites restent isolés. Atteint ; voir [audit-et-roles.md](audit-et-roles.md).
 
 ## LOT 3 — Ventes et tickets côté API
 
