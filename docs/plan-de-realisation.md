@@ -9,7 +9,7 @@ Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9)
 | 3 | Ventes et tickets côté API | 3-4 | Terminé, migration 003 non appliquée sur Supabase |
 | 4 | Dashboard, rapports, rapprochement | 4 | Terminé, migrations 003 et 004 non appliquées sur Supabase |
 | 5 | Commandes typées vers le Gateway | 5 | Terminé, migrations 003 à 005 non appliquées sur Supabase |
-| 6 | Adaptateur RouterOS 6 et 7 | 6 | À faire |
+| 6 | Adaptateur RouterOS 6 et 7 | 6 | Code livré sous forme de correctifs pour le dépôt Gateway (à appliquer) ; validation sur routeur réel à faire |
 | 7 | Paiement sandbox | 7 | À faire |
 | 8 | Portail client | 8 | À faire |
 | 9 | Assistant analytique IA | 9 | À faire |
@@ -62,7 +62,9 @@ Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), route
 
 - Contrat d'adaptateur (utilisateurs hotspot), implémentations RouterOS 6 et 7, tests avec double simulé puis équipement réel.
 
-**Critère de sortie** : activation d'un ticket testée sur RouterOS 6 et 7.
+**Critère de sortie** : activation d'un ticket testée sur RouterOS 6 et 7. Non atteint : le code est testé avec un routeur simulé et contre l'API Cloud réelle, la validation sur équipements est décrite dans le plan de test du dépôt Gateway (`docs/lab-test-plan.md`).
+
+**Point d'alignement** : le Gateway n'accepte que les codes de voucher `[A-Za-z0-9_.-]{1,64}` ; le Cloud accepte aujourd'hui toute chaîne de 1 à 64 caractères. À resserrer côté Cloud (commandes et import de stock) pour qu'un code accepté soit toujours exécutable.
 
 ## LOT 7 — Paiement sandbox
 
