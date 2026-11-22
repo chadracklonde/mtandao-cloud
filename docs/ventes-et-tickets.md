@@ -42,3 +42,26 @@ Règles :
 - Les forfaits ne sont pas supprimables, seulement désactivables, pour conserver l'historique.
 
 Tests : `supabase/tests/catalog.test.sql` (via `supabase/tests/run.sh`) et `apps/api/src/commerce/commerce.service.spec.ts`.
+
+## Tarifs par durée standard
+
+Chaque site fixe son propre prix pour cinq durées :
+
+| Palier | Durée | Libellé par défaut |
+| --- | --- | --- |
+| `1h` | 60 minutes | 1 heure |
+| `2h` | 120 minutes | 2 heures |
+| `24h` | 1 440 minutes | 24 heures |
+| `1w` | 10 080 minutes (7 jours) | 1 semaine |
+| `1m` | 43 200 minutes (30 jours) | 1 mois |
+
+- `GET /v1/sites/:siteId/pricing` (tout membre) : les cinq paliers dans l'ordre des durées, qu'ils soient définis ou non, avec `configured`, prix, devise, `active`, profil Hotspot, limite de données et stock disponible. `complete` vaut `true` quand les cinq paliers sont définis **et** actifs.
+- `POST /v1/sites/:siteId/pricing/:tier` (owner, admin, manager) : `price` (≥ 0, 2 décimales), `currency` (par défaut la devise du site), `active` (vrai par défaut), `dataLimitMb`, `hotspotProfile`, `name` (par défaut le libellé). Crée ou met à jour le forfait du palier.
+- Un palier est un forfait dont la durée est imposée par la base : un seul forfait par palier et par site, et une durée incohérente est refusée.
+- Chaque site a ses prix et sa devise : le même palier peut valoir 500 CDF sur un site et 1 USD sur un autre.
+- Un changement de prix modifie le même forfait ; les paiements déjà créés gardent le montant d'origine, et le journal d'audit conserve l'ancien prix.
+- Un palier désactivé ou non défini n'apparaît pas dans le portail client. Le portail liste les forfaits du plus court au plus long.
+- Les forfaits personnalisés (`POST /plans`, sans palier) restent possibles en plus des cinq paliers.
+- Le tableau de bord affiche le panneau « Tarifs du site » avec un bandeau indiquant combien de paliers restent à définir ; la modification est réservée aux rôles owner, admin et manager.
+
+Un site dont les cinq paliers ne sont pas définis reste utilisable : le Cloud ne bloque pas la vente, il signale ce qui manque.

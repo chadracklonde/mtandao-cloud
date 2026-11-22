@@ -40,6 +40,7 @@ Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), route
 
 - Endpoints de lecture : ventes, tickets, caisse, par site et par période.
 - Catalogue de forfaits et stock de tickets.
+- Tarifs par durée standard définis site par site : 1 h, 2 h, 24 h, 1 semaine, 1 mois (voir [ventes-et-tickets.md](ventes-et-tickets.md)).
 - Contrats dans `packages/contracts`.
 
 **Critère de sortie** : les ventes synchronisées sont consultables via l'API, avec isolation par site. Atteint ; voir [ventes-et-tickets.md](ventes-et-tickets.md).

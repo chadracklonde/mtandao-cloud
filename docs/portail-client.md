@@ -5,7 +5,7 @@ Page publique où un client Wi-Fi choisit un forfait, paie et reçoit son code d
 ## Parcours client
 
 1. Le client se connecte au Wi-Fi ; la page de connexion Hotspot du routeur l'envoie vers `https://<dashboard>/portal/<siteId>?router=<routerId>` (voir ci-dessous).
-2. La page affiche les forfaits actifs du site (les forfaits sans stock sont grisés), le client saisit son numéro Mobile Money et valide.
+2. La page affiche les forfaits actifs du site, du plus court au plus long, aux prix fixés par le site pour chaque durée (les forfaits sans stock sont grisés), le client saisit son numéro Mobile Money et valide.
 3. La page affiche la référence de paiement et interroge l'état toutes les 4 secondes (30 minutes au plus).
 4. Le **code n'apparaît qu'une fois l'activation confirmée par le routeur**. Entre le paiement et la confirmation, la page indique « activation en cours » : jamais de code qui ne fonctionne pas encore.
 5. Le client saisit le code comme identifiant *et* mot de passe sur la page de connexion Wi-Fi.
