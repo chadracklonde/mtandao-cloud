@@ -12,7 +12,7 @@ Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9)
 | 6 | Adaptateur RouterOS 6 et 7 | 6 | Code livré sous forme de correctifs pour le dépôt Gateway (à appliquer) ; validation sur routeur réel à faire |
 | 7 | Paiement sandbox | 7 | Terminé |
 | 8 | Portail client | 8 | Terminé (fournisseur sandbox) |
-| 9 | Assistant analytique IA | 9 | À faire |
+| 9 | Assistant analytique IA | 9 | Terminé, non testé avec la vraie API Claude (aucune clé) |
 | 10 | Pilote terrain | 10 | À faire |
 
 Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), routeurs, enrôlement/heartbeat/révocation/ré-enrôlement du Gateway, inbox de synchronisation idempotente.
@@ -85,6 +85,8 @@ Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), route
 ## LOT 9 — Assistant analytique IA
 
 - Questions en langage naturel, en lecture seule, limitées au site de l'utilisateur.
+
+**Critère de sortie** : l'assistant répond uniquement à partir des données du site de l'utilisateur, avec ses droits, sans rien modifier. Atteint sur le plan technique ; voir [assistant-analytique.md](assistant-analytique.md). Reste : évaluer la qualité des réponses avec une vraie clé et vos données.
 
 ## LOT 10 — Pilote terrain
 
