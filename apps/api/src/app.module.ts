@@ -28,6 +28,8 @@ import { PortalController } from './portal/portal.controller';
 import { PortalService } from './portal/portal.service';
 import { AssistantController } from './assistant/assistant.controller';
 import { AssistantService } from './assistant/assistant.service';
+import { ReadinessController } from './readiness/readiness.controller';
+import { ReadinessService } from './readiness/readiness.service';
 
 @Module({
   controllers: [
@@ -47,6 +49,7 @@ import { AssistantService } from './assistant/assistant.service';
     PaymentWebhookController,
     PortalController,
     AssistantController,
+    ReadinessController,
   ],
   providers: [
     SupabaseAuthGuard,
@@ -64,6 +67,7 @@ import { AssistantService } from './assistant/assistant.service';
     WebhookService,
     PortalService,
     AssistantService,
+    ReadinessService,
   ],
 })
 export class AppModule {}
