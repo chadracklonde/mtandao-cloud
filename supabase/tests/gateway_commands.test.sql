@@ -63,6 +63,14 @@ select pg_temp.expect('voucher code with a quote rejected (22023)',
   pg_temp.fails_with(format('select public.create_gateway_command(%L, %L, %L, %L)', :'site', :'r1', 'hotspot.voucher.disable', '{"code":"a\"b"}'), '22023'));
 select pg_temp.expect('profile with a newline rejected (22023)',
   pg_temp.fails_with(format('select public.create_gateway_command(%L, %L, %L, %L)', :'site', :'r1', 'hotspot.voucher.create', '{"code":"A1","profile":"x\ny"}'), '22023'));
+select pg_temp.expect('voucher with data limit and app comment accepted',
+  public.create_gateway_command(:'site', :'r1', 'hotspot.voucher.create', '{"code":"L1","duration_minutes":120,"data_limit_mb":500,"comment":"vc-221126-1432 cloud"}', 300, 'limits-ok') is not null);
+select pg_temp.expect('a comment without the vc-/up- prefix is rejected (22023)',
+  pg_temp.fails_with(format('select public.create_gateway_command(%L, %L, %L, %L)', :'site', :'r1', 'hotspot.voucher.create', '{"code":"L2","comment":"free text"}'), '22023'));
+select pg_temp.expect('a data limit of zero is rejected (22023)',
+  pg_temp.fails_with(format('select public.create_gateway_command(%L, %L, %L, %L)', :'site', :'r1', 'hotspot.voucher.create', '{"code":"L3","data_limit_mb":0}'), '22023'));
+select pg_temp.expect('a fractional data limit is rejected (22023)',
+  pg_temp.fails_with(format('select public.create_gateway_command(%L, %L, %L, %L)', :'site', :'r1', 'hotspot.voucher.create', '{"code":"L4","data_limit_mb":1.5}'), '22023'));
 select pg_temp.expect('payload on a no-payload operation rejected',
   pg_temp.fails_with(format('select public.create_gateway_command(%L, %L, %L, %L)', :'site', :'r1', 'health.check', '{"x":1}'), '22023'));
 select pg_temp.expect('ttl out of range rejected',
@@ -77,7 +85,7 @@ select pg_temp.expect('idempotency key reused with another payload rejected (235
 select public.create_gateway_command(:'site', :'r2', 'health.check') as c_r2 \gset
 
 -- Visibility.
-select pg_temp.expect('owner sees 3 commands', (select count(*) from public.gateway_commands) = 3);
+select pg_temp.expect('owner sees 4 commands', (select count(*) from public.gateway_commands) = 4);
 select set_config('request.jwt.claim.sub', :'sel', false);
 select pg_temp.expect('seller cannot read commands', (select count(*) from public.gateway_commands) = 0);
 select set_config('request.jwt.claim.sub', :'oth', false);
@@ -86,9 +94,9 @@ reset role;
 
 -- Gateway claims: only its own router's commands, each delivered once.
 set role anon;
-select pg_temp.expect('gateway 1 receives its two commands in order',
+select pg_temp.expect('gateway 1 receives its three commands in order',
   (select array_agg(operation order by issued_at, command_id) from public.claim_gateway_commands(:'g1', 10))
-  = array['health.check', 'hotspot.voucher.create']);
+  = array['health.check', 'hotspot.voucher.create', 'hotspot.voucher.create']);
 select pg_temp.expect('a second claim returns nothing (delivered once)',
   (select count(*) from public.claim_gateway_commands(:'g1', 10)) = 0);
 select pg_temp.expect('gateway 2 only gets the command of its own router',
@@ -162,7 +170,7 @@ select pg_temp.expect('anonymous cannot read commands (42501)',
   pg_temp.fails_with('select * from public.gateway_commands', '42501'));
 reset role;
 select pg_temp.expect('commands are audited without their payload',
-  (select count(*) from public.audit_log where action = 'command.created') = 6
+  (select count(*) from public.audit_log where action = 'command.created') = 7
   and (select count(*) from public.audit_log where action = 'command.cancelled') >= 2
   and not exists (select 1 from public.audit_log where details::text like '%V-1%'));
 \echo ALL TESTS PASSED

@@ -103,7 +103,12 @@ select pg_temp.expect('the ticket and stock voucher are sold',
   and (select status from public.ticket_stock where code = 'P1') = 'sold');
 select pg_temp.expect('one activation command is queued with the plan duration and profile',
   (select count(*) from public.gateway_commands where operation = 'hotspot.voucher.create' and status = 'pending') = 1
-  and (select payload from public.gateway_commands where operation = 'hotspot.voucher.create') = '{"code":"P1","duration_minutes":60,"profile":"1h-profile"}'::jsonb);
+  and (select payload from public.gateway_commands where operation = 'hotspot.voucher.create')
+      @> '{"code":"P1","duration_minutes":60,"profile":"1h-profile"}'::jsonb);
+select pg_temp.expect('the activation sets the usage time limit and carries the app-compatible comment',
+  (select (payload->>'duration_minutes')::int = 60 and (payload->>'comment') ~ '^vc-[0-9]{6}-[0-9]{4} cloud$'
+          and not (payload ? 'data_limit_mb')
+   from public.gateway_commands where operation = 'hotspot.voucher.create'));
 select pg_temp.hook('evt-1', :'ref1', 'succeeded', 500, 'CDF') ->> 'outcome' as out \gset
 select pg_temp.expect('duplicate webhook is a no-op', :'out' = 'duplicate');
 select pg_temp.hook('evt-1b', :'ref1', 'succeeded', 500, 'CDF') ->> 'outcome' as out \gset

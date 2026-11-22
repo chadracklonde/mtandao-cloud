@@ -100,6 +100,20 @@ select pg_temp.expect('an unsupported currency is rejected (22023)',
 select pg_temp.expect('a null price is rejected (22023)',
   pg_temp.fails_with(format('select public.set_tier_price(%L, %L, null)', :'site', '1h'), '22023'));
 
+-- Vouchers made from a plan carry its usage time limit, data limit, profile and the app-compatible comment.
+reset role;
+select pg_temp.expect('the voucher payload of a plan carries time limit, data limit, profile and comment',
+  (select private.voucher_payload(p, 'X1') = jsonb_build_object('code', 'X1', 'duration_minutes', 1440,
+      'profile', '24h-profile', 'data_limit_mb', 2048, 'comment', private.voucher_payload(p, 'X1')->>'comment')
+          and (private.voucher_payload(p, 'X1')->>'comment') ~ '^vc-[0-9]{6}-[0-9]{4} cloud$'
+   from public.plans p where p.id = :'t24'::uuid));
+select pg_temp.expect('a plan without profile or data limit sends only the time limit and comment',
+  (select not (private.voucher_payload(p, 'X2') ? 'profile') and not (private.voucher_payload(p, 'X2') ? 'data_limit_mb')
+          and (private.voucher_payload(p, 'X2')->>'duration_minutes') = '60'
+   from public.plans p where p.id = :'t1h'::uuid));
+set role authenticated;
+select set_config('request.jwt.claim.sub', :'own', false);
+
 -- Deactivating a tier hides it from customers and makes the site incomplete.
 select public.set_tier_price(:'site', '1m', 80, null, false);
 select pg_temp.expect('a deactivated tier makes the site incomplete',
