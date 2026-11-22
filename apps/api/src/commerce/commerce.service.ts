@@ -9,7 +9,7 @@ import {
 import { URLSearchParams } from 'node:url';
 import { CreatePlanDto } from './commerce.dto';
 
-export type CommerceResource = 'sales' | 'tickets' | 'cash-entries';
+export type CommerceResource = 'sales' | 'tickets' | 'cash-entries' | 'payments';
 
 interface ResourceConfig {
   table: string;
@@ -28,6 +28,13 @@ const RESOURCES: Record<CommerceResource, ResourceConfig> = {
     table: 'tickets',
     timeColumn: 'created_at',
     select: 'id,code,sale_id,status,created_at',
+  },
+  payments: {
+    table: 'payments',
+    timeColumn: 'created_at',
+    // The customer phone number is deliberately not listed.
+    select:
+      'id,plan_id,router_id,provider,provider_ref,amount,currency,status,fulfillment_status,ticket_code,sale_id,created_at,expires_at,paid_at',
   },
   'cash-entries': {
     table: 'cash_entries',
@@ -170,6 +177,7 @@ export class CommerceService {
         p_currency: dto.currency,
         p_duration_minutes: dto.durationMinutes,
         p_data_limit_mb: dto.dataLimitMb ?? null,
+        p_hotspot_profile: dto.hotspotProfile ?? null,
       },
       token,
       'create plan',

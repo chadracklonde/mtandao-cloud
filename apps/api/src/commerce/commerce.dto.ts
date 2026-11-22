@@ -9,6 +9,7 @@ import {
   IsOptional,
   IsString,
   Length,
+  Matches,
   Max,
   Min,
 } from 'class-validator';
@@ -36,6 +37,11 @@ export class CreatePlanDto {
   @IsInt()
   @Min(1)
   dataLimitMb?: number;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^[A-Za-z0-9 _.-]{1,120}$/)
+  hotspotProfile?: string;
 }
 
 export class SetPlanActiveDto {

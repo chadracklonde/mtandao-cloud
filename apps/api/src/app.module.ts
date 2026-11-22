@@ -21,6 +21,9 @@ import { ReportsController } from './reports/reports.controller';
 import { ReportsService } from './reports/reports.service';
 import { CommandsController, GatewayCommandsController } from './commands/commands.controller';
 import { CommandsService } from './commands/commands.service';
+import { PaymentWebhookController, PaymentsController } from './payments/payments.controller';
+import { PaymentsService } from './payments/payments.service';
+import { WebhookService } from './payments/webhook.service';
 
 @Module({
   controllers: [
@@ -36,6 +39,8 @@ import { CommandsService } from './commands/commands.service';
     ReportsController,
     CommandsController,
     GatewayCommandsController,
+    PaymentsController,
+    PaymentWebhookController,
   ],
   providers: [
     SupabaseAuthGuard,
@@ -49,6 +54,8 @@ import { CommandsService } from './commands/commands.service';
     CommerceService,
     ReportsService,
     CommandsService,
+    PaymentsService,
+    WebhookService,
   ],
 })
 export class AppModule {}
