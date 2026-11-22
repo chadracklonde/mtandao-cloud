@@ -31,7 +31,7 @@ Consulter `docs/architecture.md`, `docs/decisions.md` et le guide [authentificat
 
 ## État du projet
 
-Fondations, Gateway et synchronisation des ventes réalisés (Lots 0 à 2). Voir le [plan de réalisation](docs/plan-de-realisation.md). Aucun paiement réel ni accès routeur de production n'est activé à ce stade.
+Fondations, Gateway et synchronisation des ventes réalisés (Lots 0 à 3). Voir le [plan de réalisation](docs/plan-de-realisation.md). Aucun paiement réel ni accès routeur de production n'est activé à ce stade.
 
 ## Cahier des charges et documentation
 
@@ -43,6 +43,7 @@ Fondations, Gateway et synchronisation des ventes réalisés (Lots 0 à 2). Voir
 - [Déploiement Google Cloud Run](docs/deploiement-google-cloud-run.md) — conteneur Docker, configuration et garde-fous de coûts.
 - [Plan de réalisation par lots](docs/plan-de-realisation.md).
 - [Audit et rôles](docs/audit-et-roles.md).
+- [Ventes, tickets et catalogue](docs/ventes-et-tickets.md).
 - [Synchronisation hors ligne](docs/synchronisation-hors-ligne.md) — contrat d'événements, file locale, accusés de réception et reprise.
 - [Enrôlement Gateway](docs/gateway-enrollment.md) et [Heartbeat](docs/gateway-heartbeat.md).
 - [Mtandao Ticket — cahier des charges](https://github.com/chadracklonde/mtandao-ticket-app/blob/main/docs/cahier-des-charges.md).

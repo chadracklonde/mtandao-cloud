@@ -1,12 +1,12 @@
 # Plan de réalisation par lots
 
-Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9) en lots exécutables. Chaque lot livre migrations, tests, documentation et un critère de sortie. Statut mis à jour à chaque lot.
+Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9) en lots exécutables. Chaque lot livre migrations, tests, documentation et un critère de sortie. Statut mis à jour à chaque lot. Les migrations des lots 1 et 2 sont appliquées sur le projet Supabase `mtandao-cloud`.
 
 | Lot | Contenu | Phase | Statut |
 | --- | --- | --- | --- |
 | 1 | Clôture de la synchronisation | 3 | Terminé, hors application sur Supabase |
 | 2 | Audit et rôles | 2 | Terminé, hors application sur Supabase |
-| 3 | Ventes et tickets côté API | 3-4 | À faire |
+| 3 | Ventes et tickets côté API | 3-4 | Terminé, migration 003 non appliquée sur Supabase |
 | 4 | Dashboard, rapports, rapprochement | 4 | À faire |
 | 5 | Commandes typées vers le Gateway | 5 | À faire |
 | 6 | Adaptateur RouterOS 6 et 7 | 6 | À faire |
@@ -42,7 +42,7 @@ Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), route
 - Catalogue de forfaits et stock de tickets.
 - Contrats dans `packages/contracts`.
 
-**Critère de sortie** : les ventes synchronisées sont consultables via l'API, avec isolation par site.
+**Critère de sortie** : les ventes synchronisées sont consultables via l'API, avec isolation par site. Atteint ; voir [ventes-et-tickets.md](ventes-et-tickets.md).
 
 ## LOT 4 — Dashboard, rapports et rapprochement
 
