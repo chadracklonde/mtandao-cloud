@@ -137,6 +137,19 @@ export class CommerceService {
     return { items, next_cursor: next };
   }
 
+  /** Name, currency and time zone of a site; null when the user is not a member (RLS hides it). */
+  async siteInfo(
+    siteId: string,
+    accessToken: string,
+  ): Promise<{ name: string; default_currency: string; timezone: string } | null> {
+    const query = new URLSearchParams({ select: 'name,default_currency,timezone', id: `eq.${siteId}` });
+    const response = await this.call(`sites?${query.toString()}`, { method: 'GET' }, accessToken);
+    if (!response.ok) throw new BadGatewayException('Unable to read the site');
+    const rows: unknown = await response.json().catch(() => null);
+    if (!Array.isArray(rows)) throw new BadGatewayException('Supabase returned an invalid site');
+    return (rows[0] as { name: string; default_currency: string; timezone: string } | undefined) ?? null;
+  }
+
   async listPlans(siteId: string, accessToken: string): Promise<unknown[]> {
     const query = new URLSearchParams({
       select: 'id,name,price,currency,duration_minutes,data_limit_mb,active,created_at,updated_at',
