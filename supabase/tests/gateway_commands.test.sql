@@ -57,6 +57,12 @@ select pg_temp.expect('voucher without code rejected',
   pg_temp.fails_with(format('select public.create_gateway_command(%L, %L, %L, %L)', :'site', :'r1', 'hotspot.voucher.create', '{}'), '22023'));
 select pg_temp.expect('voucher with unexpected field rejected',
   pg_temp.fails_with(format('select public.create_gateway_command(%L, %L, %L, %L)', :'site', :'r1', 'hotspot.voucher.create', '{"code":"A1","cmd":"/system reset"}'), '22023'));
+select pg_temp.expect('voucher code with a space rejected (22023)',
+  pg_temp.fails_with(format('select public.create_gateway_command(%L, %L, %L, %L)', :'site', :'r1', 'hotspot.voucher.create', '{"code":"A 1"}'), '22023'));
+select pg_temp.expect('voucher code with a quote rejected (22023)',
+  pg_temp.fails_with(format('select public.create_gateway_command(%L, %L, %L, %L)', :'site', :'r1', 'hotspot.voucher.disable', '{"code":"a\"b"}'), '22023'));
+select pg_temp.expect('profile with a newline rejected (22023)',
+  pg_temp.fails_with(format('select public.create_gateway_command(%L, %L, %L, %L)', :'site', :'r1', 'hotspot.voucher.create', '{"code":"A1","profile":"x\ny"}'), '22023'));
 select pg_temp.expect('payload on a no-payload operation rejected',
   pg_temp.fails_with(format('select public.create_gateway_command(%L, %L, %L, %L)', :'site', :'r1', 'health.check', '{"x":1}'), '22023'));
 select pg_temp.expect('ttl out of range rejected',

@@ -61,6 +61,11 @@ select pg_temp.expect('manager imports stock',
 select pg_temp.expect('re-import inserts nothing',
   (public.import_ticket_stock(:'site', :'plan', array['A1', 'A2', 'A3']) ->> 'inserted') = '0');
 select pg_temp.expect('manager reads stock codes', (select count(*) from public.ticket_stock) = 3);
+select pg_temp.expect('stock code with a space is rejected (22023)',
+  pg_temp.fails_with(format('select public.import_ticket_stock(%L, %L, array[%L])', :'site', :'plan', 'A 1'), '22023'));
+select pg_temp.expect('stock code with a quote is rejected (22023)',
+  pg_temp.fails_with(format('select public.import_ticket_stock(%L, %L, array[%L])', :'site', :'plan', 'A"1'), '22023'));
+select pg_temp.expect('a rejected batch inserts nothing', (select count(*) from public.ticket_stock) = 3);
 select set_config('request.jwt.claim.sub', :'sel', false);
 select pg_temp.expect('seller cannot import stock',
   pg_temp.denied(format('select public.import_ticket_stock(%L, %L, array[%L])', :'site', :'plan', 'Z1')));
