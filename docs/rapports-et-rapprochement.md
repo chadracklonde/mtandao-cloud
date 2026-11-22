@@ -26,7 +26,7 @@ Réponse : `{ "items": [...], "summary": { "<type>": <nombre> }, "truncated": fa
 | `sync_event_rejected` | événement que le serveur n'a pas pu appliquer (raison dans `details`) |
 | `sync_event_stuck` | événement resté en attente plus de 10 minutes |
 
-Le traitement normal des événements maintient la cohérence vente / caisse / ticket : les quatre premiers types ne doivent apparaître qu'après une correction manuelle ou une anomalie. Les trois derniers signalent des problèmes de synchronisation à traiter. Le rapprochement avec les paiements sera ajouté au Lot 7.
+Le traitement normal des événements maintient la cohérence vente / caisse / ticket : les quatre premiers types ne doivent apparaître qu'après une correction manuelle ou une anomalie. Les trois derniers signalent des problèmes de synchronisation à traiter. Les écarts de paiement (`payment_amount_mismatch`, `payment_out_of_stock`, `payment_activation_failed`, `payment_activation_stuck`) sont décrits dans [paiements.md](paiements.md).
 
 ## Tableau de bord
 

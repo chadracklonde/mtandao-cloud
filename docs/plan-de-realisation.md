@@ -10,7 +10,7 @@ Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9)
 | 4 | Dashboard, rapports, rapprochement | 4 | Terminé, migrations 003 et 004 non appliquées sur Supabase |
 | 5 | Commandes typées vers le Gateway | 5 | Terminé, migrations 003 à 005 non appliquées sur Supabase |
 | 6 | Adaptateur RouterOS 6 et 7 | 6 | Code livré sous forme de correctifs pour le dépôt Gateway (à appliquer) ; validation sur routeur réel à faire |
-| 7 | Paiement sandbox | 7 | À faire |
+| 7 | Paiement sandbox | 7 | Terminé, migrations 003 à 007 non appliquées sur Supabase |
 | 8 | Portail client | 8 | À faire |
 | 9 | Assistant analytique IA | 9 | À faire |
 | 10 | Pilote terrain | 10 | À faire |
@@ -64,14 +64,14 @@ Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), route
 
 **Critère de sortie** : activation d'un ticket testée sur RouterOS 6 et 7. Non atteint : le code est testé avec un routeur simulé et contre l'API Cloud réelle, la validation sur équipements est décrite dans le plan de test du dépôt Gateway (`docs/lab-test-plan.md`).
 
-**Point d'alignement** : le Gateway n'accepte que les codes de voucher `[A-Za-z0-9_.-]{1,64}` ; le Cloud accepte aujourd'hui toute chaîne de 1 à 64 caractères. À resserrer côté Cloud (commandes et import de stock) pour qu'un code accepté soit toujours exécutable.
+**Point d'alignement (résolu)** : le Gateway n'accepte que les codes de voucher `[A-Za-z0-9_.-]{1,64}` ; le Cloud accepte aujourd'hui toute chaîne de 1 à 64 caractères. À resserrer côté Cloud (commandes et import de stock) pour qu'un code accepté soit toujours exécutable.
 
 ## LOT 7 — Paiement sandbox
 
 - Tables `payment_transactions` et `webhook_events`, webhook signé et idempotent, état « payé en attente » si Gateway absent.
 - Prérequis : choix du fournisseur Mobile Money (cahier des charges §11).
 
-**Critère de sortie** : webhook dupliqué = un seul ticket ; faux webhook rejeté.
+**Critère de sortie** : webhook dupliqué = un seul ticket ; faux webhook rejeté. Atteint ; voir [paiements.md](paiements.md).
 
 ## LOT 8 — Portail client
 

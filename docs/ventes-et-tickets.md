@@ -24,9 +24,9 @@ Réponse : `{ "items": [...], "next_cursor": "<horodatage>|<uuid>" | null }`, du
 
 | Route | Corps | Rôles |
 | --- | --- | --- |
-| `POST /plans` | `name`, `price` (≥ 0, 2 décimales), `currency` (`CDF`/`USD`), `durationMinutes` (1 à 525 600), `dataLimitMb` (optionnel) | owner, admin, manager |
+| `POST /plans` | `name`, `price` (≥ 0, 2 décimales), `currency` (`CDF`/`USD`), `durationMinutes` (1 à 525 600), `dataLimitMb` (optionnel), `hotspotProfile` (optionnel : profil RouterOS Hotspot des vouchers du forfait) | owner, admin, manager |
 | `POST /plans/:planId/active` | `{ "active": true\|false }` | owner, admin, manager |
-| `POST /plans/:planId/ticket-stock` | `{ "codes": ["..."] }`, 1 à 1000 codes de 1 à 64 caractères | owner, admin, manager |
+| `POST /plans/:planId/ticket-stock` | `{ "codes": ["..."] }`, 1 à 1000 codes de 1 à 64 caractères parmi lettres, chiffres, point, tiret et souligné | owner, admin, manager |
 
 Règles :
 
@@ -38,7 +38,7 @@ Règles :
 
 ## Limites actuelles
 
-- Le stock n'est pas encore consommé par les ventes : le passage `available` → `sold` sera relié à la vente assistée (Lot 7).
+- Le stock est consommé par les paiements confirmés (voir [paiements.md](paiements.md)) ; les ventes synchronisées depuis l'application ne le consomment pas.
 - Les forfaits ne sont pas supprimables, seulement désactivables, pour conserver l'historique.
 
 Tests : `supabase/tests/catalog.test.sql` (via `supabase/tests/run.sh`) et `apps/api/src/commerce/commerce.service.spec.ts`.
