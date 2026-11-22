@@ -31,7 +31,7 @@ Consulter `docs/architecture.md`, `docs/decisions.md` et le guide [authentificat
 
 ## État du projet
 
-Fondations, Gateway et synchronisation des ventes réalisés (Lots 0 à 5 et 7 à 9 ; Lot 6 livré par correctifs pour le dépôt Gateway). Voir le [plan de réalisation](docs/plan-de-realisation.md). Aucun paiement réel ni accès routeur de production n'est activé à ce stade.
+Fondations, Gateway et synchronisation des ventes réalisés (Lots 0 à 5 et 7 à 9, outillage du pilote ; Lot 6 livré par correctifs pour le dépôt Gateway). Voir le [plan de réalisation](docs/plan-de-realisation.md). Aucun paiement réel ni accès routeur de production n'est activé à ce stade.
 
 ## Cahier des charges et documentation
 
@@ -49,6 +49,7 @@ Fondations, Gateway et synchronisation des ventes réalisés (Lots 0 à 5 et 7 �
 - [Paiements (sandbox)](docs/paiements.md).
 - [Portail client](docs/portail-client.md).
 - [Assistant analytique](docs/assistant-analytique.md).
+- [Mise en service](docs/mise-en-service.md), [plan du pilote](docs/plan-pilote.md) et [exploitation](docs/exploitation.md).
 - [Synchronisation hors ligne](docs/synchronisation-hors-ligne.md) — contrat d'événements, file locale, accusés de réception et reprise.
 - [Enrôlement Gateway](docs/gateway-enrollment.md) et [Heartbeat](docs/gateway-heartbeat.md).
 - [Mtandao Ticket — cahier des charges](https://github.com/chadracklonde/mtandao-ticket-app/blob/main/docs/cahier-des-charges.md).

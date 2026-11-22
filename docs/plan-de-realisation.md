@@ -13,7 +13,7 @@ Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9)
 | 7 | Paiement sandbox | 7 | Terminé |
 | 8 | Portail client | 8 | Terminé (fournisseur sandbox) |
 | 9 | Assistant analytique IA | 9 | Terminé, non testé avec la vraie API Claude (aucune clé) |
-| 10 | Pilote terrain | 10 | À faire |
+| 10 | Pilote terrain | 10 | Outillage et guides prêts ; l'exécution dépend de vos tests réels |
 
 Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), routeurs, enrôlement/heartbeat/révocation/ré-enrôlement du Gateway, inbox de synchronisation idempotente.
 
@@ -91,6 +91,10 @@ Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), route
 ## LOT 10 — Pilote terrain
 
 - Déploiement sur 1 à 3 sites, supervision, support, décision de généralisation.
+
+**Livré** : tâches planifiées en base, contrôle « Prêt pour la vente ? » par site, script de test de bout en bout `scripts/pilot-smoke.mjs`, [guide de mise en service](mise-en-service.md), [plan du pilote](plan-pilote.md) et [guide d'exploitation](exploitation.md).
+
+**Reste (hors du code)** : exécuter le pilote sur un routeur réel, choisir et raccorder un fournisseur Mobile Money, décider de la généralisation.
 
 ## Migrations Supabase
 
