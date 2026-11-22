@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { readBearerToken, SupabaseAuthGuard } from '../auth/auth.guard';
 import { AuthenticatedRequest } from '../auth/auth.types';
-import { ClaimCommandsDto, CommandResultDto, CreateGatewayCommandDto } from './commands.dto';
+import { ClaimCommandsDto, CommandResultDto, CreateGatewayCommandDto, CreateVoucherDto } from './commands.dto';
 import { CommandRecord, CommandsService } from './commands.service';
 
 function bearer(request: AuthenticatedRequest): string {
@@ -36,6 +36,16 @@ export class CommandsController {
     @Req() request: AuthenticatedRequest,
   ) {
     return this.commands.create(siteId, routerId, dto, bearer(request));
+  }
+
+  @Post('routers/:routerId/vouchers')
+  createVoucher(
+    @Param('siteId', new ParseUUIDPipe()) siteId: string,
+    @Param('routerId', new ParseUUIDPipe()) routerId: string,
+    @Body() dto: CreateVoucherDto,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.commands.createVoucher(siteId, routerId, dto, bearer(request));
   }
 
   @Get('commands')

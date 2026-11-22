@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { CommandsService } from './commands.service';
+import { CommandsService, ticketComment } from './commands.service';
 
 const originalFetch = globalThis.fetch;
 const originalUrl = process.env.SUPABASE_URL;
@@ -148,4 +148,79 @@ test('list reports an overdue pending command as expired and filters by status',
   } finally {
     restore();
   }
+});
+
+function voucherFetch(plan: Record<string, unknown> | null, sent: { payload?: Record<string, unknown>; key?: string }) {
+  setup((url, init) => {
+    if (url.pathname === '/rest/v1/plans') return json(plan ? [plan] : []);
+    if (url.pathname === '/rest/v1/sites') return json([{ timezone: 'Africa/Lubumbashi' }]);
+    const body = JSON.parse(String(init?.body));
+    sent.payload = body.p_payload;
+    sent.key = body.p_idempotency_key;
+    return json('cmd-v');
+  });
+}
+
+test('a Cloud ticket takes its usage time limit, data limit and profile from the plan', async () => {
+  const sent: { payload?: Record<string, unknown>; key?: string } = {};
+  voucherFetch({ duration_minutes: 1440, hotspot_profile: '24h', data_limit_mb: 2048 }, sent);
+  try {
+    const result = await new CommandsService().createVoucher('s', 'r', { code: 'AB12', planId: 'plan' }, 't');
+    assert.equal(result.commandId, 'cmd-v');
+    assert.equal(result.usageLimitMinutes, 1440);
+    assert.equal(result.dataLimitMb, 2048);
+    assert.deepEqual(sent.payload, {
+      code: 'AB12', comment: result.comment, duration_minutes: 1440, data_limit_mb: 2048, profile: '24h',
+    });
+    assert.match(result.comment, /^vc-\d{6}-\d{4} cloud$/);
+    assert.equal(sent.key, 'voucher-r-AB12');
+  } finally {
+    restore();
+  }
+});
+
+test('an explicit usage limit overrides the plan, and unlimited is only accepted when explicit', async () => {
+  const sent: { payload?: Record<string, unknown>; key?: string } = {};
+  voucherFetch({ duration_minutes: 1440, hotspot_profile: null, data_limit_mb: null }, sent);
+  try {
+    const svc = new CommandsService();
+    const overridden = await svc.createVoucher('s', 'r', { code: 'A', planId: 'p', usageLimitMinutes: 90, dataLimitMb: 300 }, 't');
+    assert.equal(overridden.usageLimitMinutes, 90);
+    assert.equal(sent.payload?.duration_minutes, 90);
+    assert.equal(sent.payload?.data_limit_mb, 300);
+    assert.equal('profile' in (sent.payload ?? {}), false);
+
+    const unlimited = await svc.createVoucher('s', 'r', { code: 'B', planId: 'p', unlimited: true }, 't');
+    assert.equal(unlimited.usageLimitMinutes, null);
+    assert.equal('duration_minutes' in (sent.payload ?? {}), false);
+
+    await assert.rejects(() => svc.createVoucher('s', 'r', { code: 'C' }, 't'), /Choose the usage time limit/);
+    await assert.rejects(
+      () => svc.createVoucher('s', 'r', { code: 'D', unlimited: true, usageLimitMinutes: 5 }, 't'),
+      /cannot be combined/,
+    );
+    const manual = await svc.createVoucher('s', 'r', { code: 'E', usageLimitMinutes: 60, profile: 'p1', note: 'Client Jean' }, 't');
+    assert.equal(sent.payload?.profile, 'p1');
+    assert.match(manual.comment, /^vc-\d{6}-\d{4} Client Jean$/);
+  } finally {
+    restore();
+  }
+});
+
+test('a plan of another site is not found', async () => {
+  voucherFetch(null, {});
+  try {
+    await assert.rejects(() => new CommandsService().createVoucher('s', 'r', { code: 'A', planId: 'p' }, 't'), /Plan not found/);
+  } finally {
+    restore();
+  }
+});
+
+test('the ticket comment follows the site time zone and the Mikhmon format', () => {
+  const at = new Date('2026-11-22T22:30:00Z'); // 00:30 on the 23rd in Africa/Lubumbashi (UTC+2)
+  assert.equal(ticketComment(at, 'Africa/Lubumbashi', 'cloud'), 'vc-231126-0030 cloud');
+  assert.equal(ticketComment(at, 'UTC', 'cloud'), 'vc-221126-2230 cloud');
+  assert.equal(ticketComment(at, 'UTC', ''), 'vc-221126-2230');
+  assert.equal(ticketComment(at, 'UTC', 'a;b"c  d'), 'vc-221126-2230 abc d');
+  assert.equal(ticketComment(at, 'UTC', 'x'.repeat(50)).length, 'vc-221126-2230 '.length + 30);
 });

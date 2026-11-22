@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { URLSearchParams } from 'node:url';
-import { CreateGatewayCommandDto } from './commands.dto';
+import { CreateGatewayCommandDto, CreateVoucherDto } from './commands.dto';
 
 export const COMMAND_STATUSES = ['pending', 'delivered', 'succeeded', 'failed', 'expired', 'cancelled'] as const;
 export type CommandStatus = (typeof COMMAND_STATUSES)[number];
@@ -119,6 +119,73 @@ export class CommandsService {
     return { commandId: result };
   }
 
+  /**
+   * Creates a Hotspot ticket from the Cloud. The usage time limit is always a
+   * deliberate choice: taken from the plan, given explicitly, or declared
+   * unlimited. The ticket gets the app-compatible comment so that the router's
+   * profile script logs its sale and arms its expiry like any app-made ticket.
+   */
+  async createVoucher(
+    siteId: string,
+    routerId: string,
+    dto: CreateVoucherDto,
+    accessToken: string,
+  ): Promise<{ commandId: string; usageLimitMinutes: number | null; dataLimitMb: number | null; comment: string }> {
+    if (dto.unlimited && dto.usageLimitMinutes !== undefined) {
+      throw new BadRequestException('unlimited cannot be combined with usageLimitMinutes');
+    }
+
+    let plan: { duration_minutes: number; hotspot_profile: string | null; data_limit_mb: number | null } | undefined;
+    if (dto.planId) {
+      const rows = await this.readRows(
+        `plans?${new URLSearchParams({
+          select: 'duration_minutes,hotspot_profile,data_limit_mb',
+          site_id: `eq.${siteId}`,
+          id: `eq.${dto.planId}`,
+        }).toString()}`,
+        accessToken,
+      );
+      plan = rows[0] as typeof plan;
+      if (!plan) throw new NotFoundException('Plan not found in this site');
+    }
+
+    const usageLimit = dto.unlimited ? null : dto.usageLimitMinutes ?? plan?.duration_minutes ?? null;
+    if (usageLimit === null && !dto.unlimited) {
+      throw new BadRequestException('Choose the usage time limit: planId, usageLimitMinutes or unlimited=true');
+    }
+    const dataLimit = dto.dataLimitMb ?? plan?.data_limit_mb ?? null;
+    const profile = dto.profile ?? plan?.hotspot_profile ?? null;
+
+    const sites = await this.readRows(
+      `sites?${new URLSearchParams({ select: 'timezone', id: `eq.${siteId}` }).toString()}`,
+      accessToken,
+    );
+    const timezone = (sites[0] as { timezone?: string } | undefined)?.timezone;
+    if (!timezone) throw new NotFoundException('Site not found');
+
+    const comment = ticketComment(new Date(), timezone, dto.note ?? 'cloud');
+    const payload: Record<string, unknown> = { code: dto.code, comment };
+    if (usageLimit !== null) payload.duration_minutes = usageLimit;
+    if (dataLimit !== null) payload.data_limit_mb = dataLimit;
+    if (profile) payload.profile = profile;
+
+    const { commandId } = await this.create(
+      siteId,
+      routerId,
+      { operation: 'hotspot.voucher.create', payload, idempotencyKey: `voucher-${routerId}-${dto.code}` },
+      accessToken,
+    );
+    return { commandId, usageLimitMinutes: usageLimit, dataLimitMb: dataLimit, comment };
+  }
+
+  private async readRows(path: string, accessToken: string): Promise<unknown[]> {
+    const response = await this.request(path, { method: 'GET' }, accessToken);
+    if (!response.ok) throw new BadGatewayException('Unable to read the plan or site');
+    const rows: unknown = await response.json().catch(() => null);
+    if (!Array.isArray(rows)) throw new BadGatewayException('Supabase returned an invalid response');
+    return rows;
+  }
+
   async cancel(siteId: string, commandId: string, accessToken: string): Promise<{ commandId: string; status: 'cancelled' }> {
     const result = await this.rpc('cancel_gateway_command', { p_site_id: siteId, p_command_id: commandId }, accessToken);
     if (result !== 'cancelled') throw new BadGatewayException('Supabase returned an invalid cancellation result');
@@ -206,4 +273,23 @@ export class CommandsService {
     }
     return { commandId, status };
   }
+}
+
+/**
+ * Ticket comment in the Mikhmon / Mtandao Ticket format: `vc-DDMMYY-HHMM <note>`,
+ * with the date and time of the site's own time zone.
+ */
+export function ticketComment(now: Date, timeZone: string, note: string): string {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(now);
+  const get = (type: string): string => parts.find(part => part.type === type)?.value ?? '00';
+  const cleaned = note.replace(/[^A-Za-z0-9 .'-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 30);
+  return `vc-${get('day')}${get('month')}${get('year')}-${get('hour')}${get('minute')}${cleaned ? ` ${cleaned}` : ''}`;
 }
