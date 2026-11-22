@@ -11,7 +11,7 @@ Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9)
 | 5 | Commandes typées vers le Gateway | 5 | Terminé, migrations 003 à 005 non appliquées sur Supabase |
 | 6 | Adaptateur RouterOS 6 et 7 | 6 | Code livré sous forme de correctifs pour le dépôt Gateway (à appliquer) ; validation sur routeur réel à faire |
 | 7 | Paiement sandbox | 7 | Terminé, migrations 003 à 007 non appliquées sur Supabase |
-| 8 | Portail client | 8 | À faire |
+| 8 | Portail client | 8 | Terminé (fournisseur sandbox), migrations 003 à 008 non appliquées sur Supabase |
 | 9 | Assistant analytique IA | 9 | À faire |
 | 10 | Pilote terrain | 10 | À faire |
 
@@ -76,6 +76,8 @@ Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), route
 ## LOT 8 — Portail client
 
 - Parcours public d'achat et d'accès ; refus des accès expirés ou d'un autre ticket ; paiement autonome.
+
+**Critère de sortie** : les accès expirés ou destinés à un autre ticket sont refusés. Atteint ; voir [portail-client.md](portail-client.md). Reste : intégration de l'invite de paiement d'un vrai fournisseur.
 
 ## LOT 9 — Assistant analytique IA
 
