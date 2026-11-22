@@ -1,6 +1,8 @@
 import {
   BadGatewayException,
   BadRequestException,
+  ConflictException,
+  NotFoundException,
   ForbiddenException,
   Injectable,
   ServiceUnavailableException,
@@ -32,6 +34,19 @@ export interface ReconciliationReport {
 }
 
 export const RECONCILIATION_LIMIT = 500;
+export const CONFLICT_LIMIT = 200;
+export type ConflictResolution = 'keep_cloud' | 'dismissed';
+
+export interface SyncConflict {
+  id: string;
+  event_id: string;
+  conflict_type: string;
+  details: Record<string, unknown>;
+  created_at: string;
+  resolved_at: string | null;
+  resolution: string | null;
+  resolution_note: string | null;
+}
 
 @Injectable()
 export class ReportsService {
@@ -109,5 +124,71 @@ export class ReportsService {
     const summary: Record<string, number> = {};
     for (const row of rows) summary[row.kind] = (summary[row.kind] ?? 0) + 1;
     return { items: rows, summary, truncated: rows.length >= RECONCILIATION_LIMIT };
+  }
+
+  private config(): { url: string; anonKey: string } {
+    const url = process.env.SUPABASE_URL?.replace(/\/$/, '');
+    const anonKey = process.env.SUPABASE_ANON_KEY;
+    if (!url || !anonKey) throw new ServiceUnavailableException('Supabase is not configured');
+    return { url, anonKey };
+  }
+
+  /** Synchronization conflicts, newest first. RLS restricts rows to the caller's sites. */
+  async conflicts(siteId: string, accessToken: string, status: string | undefined): Promise<SyncConflict[]> {
+    if (status !== undefined && status !== 'open' && status !== 'resolved' && status !== 'all') {
+      throw new BadRequestException('status must be open, resolved or all');
+    }
+    const { url, anonKey } = this.config();
+    const query = new URLSearchParams({
+      select: 'id,event_id,conflict_type,details,created_at,resolved_at,resolution,resolution_note',
+      site_id: `eq.${siteId}`,
+      order: 'created_at.desc',
+      limit: String(CONFLICT_LIMIT),
+    });
+    if ((status ?? 'open') === 'open') query.set('resolved_at', 'is.null');
+    if (status === 'resolved') query.set('resolved_at', 'not.is.null');
+
+    let response: Response;
+    try {
+      response = await fetch(`${url}/rest/v1/sync_conflicts?${query}`, {
+        headers: { apikey: anonKey, authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(15000),
+      });
+    } catch {
+      throw new ServiceUnavailableException('Supabase is unavailable');
+    }
+    const rows: unknown = response.ok ? await response.json().catch(() => null) : null;
+    if (!Array.isArray(rows)) throw new BadGatewayException('Unable to read synchronization conflicts');
+    return rows as SyncConflict[];
+  }
+
+  async resolveConflict(
+    siteId: string,
+    conflictId: string,
+    resolution: ConflictResolution,
+    note: string | undefined,
+    accessToken: string,
+  ): Promise<unknown> {
+    const { url, anonKey } = this.config();
+    let response: Response;
+    try {
+      response = await fetch(`${url}/rest/v1/rpc/resolve_sync_conflict`, {
+        method: 'POST',
+        headers: { apikey: anonKey, authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ p_site_id: siteId, p_conflict_id: conflictId, p_resolution: resolution, p_note: note ?? null }),
+        signal: AbortSignal.timeout(15000),
+      });
+    } catch {
+      throw new ServiceUnavailableException('Supabase is unavailable');
+    }
+    if (!response.ok) {
+      const error = (await response.json().catch(() => ({}))) as { code?: string };
+      if (error.code === '42501') throw new ForbiddenException('Insufficient permission to resolve conflicts');
+      if (error.code === 'P0002') throw new NotFoundException('Conflict not found');
+      if (error.code === '23505') throw new ConflictException('Conflict already resolved');
+      if (error.code === '22023') throw new BadRequestException('Invalid resolution or note');
+      throw new BadGatewayException('Unable to resolve the conflict');
+    }
+    return response.json().catch(() => ({}));
   }
 }

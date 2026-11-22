@@ -1,6 +1,6 @@
 # Plan de réalisation par lots
 
-Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9) en lots exécutables. Chaque lot livre migrations, tests, documentation et un critère de sortie. Statut mis à jour à chaque lot. Toutes les migrations (`202611160001` à `202611160011`) sont appliquées sur le projet Supabase `mtandao-cloud`.
+Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9) en lots exécutables. Chaque lot livre migrations, tests, documentation et un critère de sortie. Statut mis à jour à chaque lot. Toutes les migrations (`202611160001` à `202611160013`) sont appliquées sur le projet Supabase `mtandao-cloud`.
 
 | Lot | Contenu | Phase | Statut |
 | --- | --- | --- | --- |
@@ -14,6 +14,7 @@ Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9)
 | 8 | Portail client | 8 | Terminé (fournisseur sandbox) |
 | 9 | Assistant analytique IA | 9 | Terminé, non testé avec la vraie API Claude (aucune clé) |
 | 10 | Pilote terrain | 10 | Outillage et guides prêts ; l'exécution dépend de vos tests réels |
+| 11 | Conflits de synchronisation et export CSV | 4 | Terminé |
 
 Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), routeurs, enrôlement/heartbeat/révocation/ré-enrôlement du Gateway, inbox de synchronisation idempotente.
 
@@ -96,9 +97,17 @@ Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), route
 
 **Reste (hors du code)** : exécuter le pilote sur un routeur réel, choisir et raccorder un fournisseur Mobile Money, décider de la généralisation.
 
+## LOT 11 — Conflits de synchronisation et export
+
+- Migration `013` : `resolve_sync_conflict` (owner, admin, manager) enregistre qui a décidé, quand, quoi (`keep_cloud` ou `dismissed`) et pourquoi ; décision inscrite à l'audit (`sync_conflict.resolved`).
+- API : `GET /reports/conflicts?status=open|resolved|all` et `POST /reports/conflicts/:id/resolve`.
+- Dashboard : onglet « Conflits » avec les deux décisions, et bouton « Exporter en CSV » sur les onglets Rapport, Ventes, Caisse et Tickets (10 000 lignes au plus, cellules neutralisées contre l'injection de formules).
+
+**Limite assumée** : une résolution n'écrit jamais dans les ventes, tickets ou la caisse. Le Cloud garde la première version acceptée ; la décision ferme seulement l'écart du rapprochement. Corriger une vente se fera par une opération distincte et auditée si le besoin apparaît.
+
 ## Migrations Supabase
 
-Les migrations `202611160001` à `202611160011` sont appliquées sur le projet `mtandao-cloud`. Deux points à connaître pour les prochaines :
+Les migrations `202611160001` à `202611160013` sont appliquées sur le projet `mtandao-cloud`. Deux points à connaître pour les prochaines :
 
 - Les instructions détectées comme destructives par l'outil Supabase (`drop function`, `drop not null`…) demandent une confirmation humaine dans la minute. Quand c'est possible, on les évite ou on les isole dans une petite migration à part (cas de `011_sales_allow_payment_origin`).
 - `create_plan` existe en deux versions : à 6 arguments (sans profil Hotspot) et à 7 arguments (avec profil). Le septième n'a volontairement pas de valeur par défaut, pour que les deux versions ne se disputent jamais un même appel.

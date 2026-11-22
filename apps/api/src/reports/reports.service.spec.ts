@@ -129,3 +129,49 @@ test('database errors map to HTTP exceptions', async () => {
     restore();
   }
 });
+
+test('conflicts default to open ones and are scoped to the site with the user token', async () => {
+  let url: URL | undefined;
+  let auth = '';
+  setup((u, init) => {
+    url = u;
+    auth = new Headers(init?.headers).get('authorization') ?? '';
+    return json([{ id: 'c1', conflict_type: 'sale_mismatch' }]);
+  });
+  try {
+    const rows = await new ReportsService().conflicts('site-1', 'tok', undefined);
+    assert.equal(url?.pathname, '/rest/v1/sync_conflicts');
+    assert.equal(url?.searchParams.get('site_id'), 'eq.site-1');
+    assert.equal(url?.searchParams.get('resolved_at'), 'is.null');
+    assert.equal(auth, 'Bearer tok');
+    assert.equal(rows.length, 1);
+    await assert.rejects(() => new ReportsService().conflicts('site-1', 'tok', 'bogus'), /status must be/);
+  } finally {
+    restore();
+  }
+});
+
+test('resolving a conflict maps database errors to HTTP errors', async () => {
+  for (const [code, name] of [['42501', 'ForbiddenException'], ['P0002', 'NotFoundException'], ['23505', 'ConflictException'], ['22023', 'BadRequestException']] as const) {
+    setup(() => json({ code }, 400));
+    try {
+      await assert.rejects(
+        () => new ReportsService().resolveConflict('s', 'c', 'dismissed', undefined, 'tok'),
+        (error: Error) => error.constructor.name === name,
+      );
+    } finally {
+      restore();
+    }
+  }
+  let body: Record<string, unknown> = {};
+  setup((_u, init) => {
+    body = JSON.parse(String(init?.body));
+    return json({ id: 'c', resolved: true });
+  });
+  try {
+    await new ReportsService().resolveConflict('s', 'c', 'keep_cloud', 'ok', 'tok');
+    assert.deepEqual(body, { p_site_id: 's', p_conflict_id: 'c', p_resolution: 'keep_cloud', p_note: 'ok' });
+  } finally {
+    restore();
+  }
+});

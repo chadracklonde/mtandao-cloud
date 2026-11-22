@@ -1,8 +1,10 @@
 import {
   Controller,
+  Body,
   Get,
   Param,
   ParseUUIDPipe,
+  Post,
   Query,
   Req,
   UnauthorizedException,
@@ -10,7 +12,18 @@ import {
 } from '@nestjs/common';
 import { readBearerToken, SupabaseAuthGuard } from '../auth/auth.guard';
 import { AuthenticatedRequest } from '../auth/auth.types';
-import { ReconciliationReport, ReportsService, SalesReportRow } from './reports.service';
+import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+import { ReconciliationReport, ReportsService, SalesReportRow, SyncConflict } from './reports.service';
+
+export class ResolveConflictDto {
+  @IsIn(['keep_cloud', 'dismissed'])
+  resolution!: 'keep_cloud' | 'dismissed';
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  note?: string;
+}
 
 function bearer(request: AuthenticatedRequest): string {
   const token = readBearerToken(request.headers.authorization);
@@ -42,5 +55,24 @@ export class ReportsController {
     @Query('to') to?: string,
   ): Promise<ReconciliationReport> {
     return this.reports.reconciliation(siteId, bearer(request), { from, to });
+  }
+
+  @Get('conflicts')
+  conflicts(
+    @Param('siteId', new ParseUUIDPipe()) siteId: string,
+    @Req() request: AuthenticatedRequest,
+    @Query('status') status?: string,
+  ): Promise<SyncConflict[]> {
+    return this.reports.conflicts(siteId, bearer(request), status);
+  }
+
+  @Post('conflicts/:conflictId/resolve')
+  resolveConflict(
+    @Param('siteId', new ParseUUIDPipe()) siteId: string,
+    @Param('conflictId', new ParseUUIDPipe()) conflictId: string,
+    @Body() dto: ResolveConflictDto,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.reports.resolveConflict(siteId, conflictId, dto.resolution, dto.note, bearer(request));
   }
 }

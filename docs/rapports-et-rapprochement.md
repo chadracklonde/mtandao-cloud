@@ -39,3 +39,9 @@ Le composant `apps/dashboard/app/site-reports.tsx` s'affiche dès qu'un site est
 - Les pages du dashboard n'ont été vérifiées que par compilation et typage ; un contrôle visuel avec une session réelle reste à faire.
 
 Tests : `supabase/tests/reports.test.sql` (via `supabase/tests/run.sh`) et `apps/api/src/reports/reports.service.spec.ts`.
+
+## Conflits de synchronisation et export (Lot 11)
+
+Un conflit (`sale_mismatch`, `ticket_code_taken`, `concurrent_duplicate`) reste ouvert jusqu'à décision. Les owner, admin et manager choisissent **Garder la version du Cloud** ou **Écarter**, avec une note facultative. La décision est conservée (auteur, date, note) et auditée, et l'écart disparaît du rapprochement. Elle ne modifie aucune vente.
+
+Les listes (rapport, ventes, caisse, tickets) s'exportent en CSV depuis le dashboard, jusqu'à 10 000 lignes ; au-delà, réduire la période.

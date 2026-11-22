@@ -443,7 +443,7 @@ export default function HomePage() {
         return <SiteStock apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} canImport={['owner', 'admin', 'manager'].includes(current?.role ?? '')} />;
       })()}
 
-      {siteId && session?.access_token && <SiteReports apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} />}
+      {siteId && session?.access_token && <SiteReports apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} canResolve={['owner', 'admin', 'manager'].includes(sites.find(site => site.id === siteId)?.role ?? '')} />}
       {siteId && session?.access_token && <SiteAssistant apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} />}
 
       {loaded && (
