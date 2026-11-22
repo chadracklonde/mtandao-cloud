@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "node --test dist/health.controller.spec.js dist/sites/sites.service.spec.js dist/invitations/invitations.service.spec.js dist/routers/routers.service.spec.js dist/gateway/gateway-enrollment.service.spec.js dist/gateway/gateway-heartbeat.service.spec.js dist/sync/sync.service.spec.js",
+    "test": "node --test dist/health.controller.spec.js dist/sites/sites.service.spec.js dist/invitations/invitations.service.spec.js dist/routers/routers.service.spec.js dist/gateway/gateway-enrollment.service.spec.js dist/gateway/gateway-heartbeat.service.spec.js dist/sync/sync.service.spec.js dist/audit/audit.service.spec.js",
     "lint": "tsc --noEmit -p tsconfig.json",
     "start": "node dist/main.js"
   },

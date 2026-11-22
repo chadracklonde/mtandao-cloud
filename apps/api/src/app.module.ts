@@ -13,6 +13,8 @@ import { GatewayHeartbeatController } from './gateway/gateway-heartbeat.controll
 import { GatewayHeartbeatService } from './gateway/gateway-heartbeat.service';
 import { SyncController } from './sync/sync.controller';
 import { SyncService } from './sync/sync.service';
+import { AuditController } from './audit/audit.controller';
+import { AuditService } from './audit/audit.service';
 
 @Module({
   controllers: [
@@ -23,6 +25,7 @@ import { SyncService } from './sync/sync.service';
     GatewayEnrollmentController,
     GatewayHeartbeatController,
     SyncController,
+    AuditController,
   ],
   providers: [
     SupabaseAuthGuard,
@@ -32,6 +35,7 @@ import { SyncService } from './sync/sync.service';
     GatewayEnrollmentService,
     GatewayHeartbeatService,
     SyncService,
+    AuditService,
   ],
 })
 export class AppModule {}
