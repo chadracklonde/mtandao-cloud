@@ -18,5 +18,7 @@ jobs:
       - run: npm run build
       - run: npm run test
       - run: npm run lint
+      - name: SQL migrations and integration tests
+        run: bash supabase/tests/run.sh
       - name: Build API Docker image
         run: docker build --tag mtandao-cloud-api:ci .
