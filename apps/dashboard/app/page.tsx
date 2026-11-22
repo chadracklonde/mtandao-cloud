@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { createClient } from '../lib/supabase/client';
+import { SiteReports } from './site-reports';
 
 type Site = {
   id: string;
@@ -425,6 +426,8 @@ export default function HomePage() {
           )}
         </section>
       )}
+
+      {siteId && session?.access_token && <SiteReports apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} />}
 
       {loaded && (
         <section>
