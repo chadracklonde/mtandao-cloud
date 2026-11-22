@@ -8,7 +8,7 @@ Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9)
 | 2 | Audit et rôles | 2 | Terminé, hors application sur Supabase |
 | 3 | Ventes et tickets côté API | 3-4 | Terminé, migration 003 non appliquée sur Supabase |
 | 4 | Dashboard, rapports, rapprochement | 4 | Terminé, migrations 003 et 004 non appliquées sur Supabase |
-| 5 | Commandes typées vers le Gateway | 5 | À faire |
+| 5 | Commandes typées vers le Gateway | 5 | Terminé, migrations 003 à 005 non appliquées sur Supabase |
 | 6 | Adaptateur RouterOS 6 et 7 | 6 | À faire |
 | 7 | Paiement sandbox | 7 | À faire |
 | 8 | Portail client | 8 | À faire |
@@ -56,7 +56,7 @@ Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), route
 - Table `gateway_commands` (file, statut, expiration), endpoints de création, récupération et accusé.
 - Validation par `gateway-command.schema.json`.
 
-**Critère de sortie** : une commande n'est délivrée qu'une fois, à un Gateway valide ; un Gateway révoqué ou suspendu n'en reçoit aucune.
+**Critère de sortie** : une commande n'est délivrée qu'une fois, à un Gateway valide ; un Gateway révoqué ou suspendu n'en reçoit aucune. Atteint ; voir [commandes-gateway.md](commandes-gateway.md).
 
 ## LOT 6 — Adaptateur RouterOS
 
