@@ -14,6 +14,24 @@ Le Cloud met des commandes en file ; le Gateway les récupère par sondage (conn
 
 Toute autre opération ou tout champ inattendu est refusé : le Gateway n'exécute que des opérations connues, jamais de commande RouterOS libre.
 
+## Limites des tickets créés depuis le Cloud
+
+Un ticket Cloud porte les mêmes limites que ceux de Mikhmon ou de l'application Mtandao Ticket :
+
+| Champ | Effet RouterOS | Remarque |
+| --- | --- | --- |
+| `duration_minutes` | `limit-uptime` : limite de durée d'utilisation, qui court à partir de la première connexion | 1 à 525 600 min. Absent : aucune limite |
+| `data_limit_mb` | `limit-bytes-total` : limite de données | 1 Mo = 1 048 576 octets, comme l'application |
+| `comment` | commentaire du ticket, format `vc-JJMMAA-HHMM <note>` | avec le script on-login du profil de l'application, ce préfixe fait enregistrer la vente, marquer le ticket « utilisé » et armer son expiration |
+
+- **Paiements** : la commande d'activation reprend toujours la durée du forfait (`duration_minutes`), sa limite de données et son profil Hotspot, avec le commentaire `vc-… cloud` (date et heure du fuseau du site).
+- **Création manuelle par le personnel** : `POST /v1/sites/:siteId/routers/:routerId/vouchers` (owner, admin, manager) avec `code` et au choix :
+  - `planId` : durée, limite de données et profil repris du forfait ;
+  - `usageLimitMinutes` : durée explicite, qui remplace celle du forfait ;
+  - `unlimited: true` : sans limite de temps, à demander explicitement (incompatible avec `usageLimitMinutes`).
+  Sans l'un des trois, la requête est refusée (`400`) : la limite de durée est toujours un choix délibéré. `dataLimitMb`, `profile` et `note` (30 caractères) sont facultatifs. La réponse indique les limites appliquées.
+- Le routeur applique ces limites lui-même : la durée d'utilisation continue d'être coupée même si le Gateway est hors ligne.
+
 ## Côté utilisateur (jeton Supabase)
 
 - `POST /v1/sites/:siteId/routers/:routerId/commands` — corps : `operation`, `payload`, `ttlSeconds` (30 à 3600, 300 par défaut), `idempotencyKey` (optionnel). Réponse : `{ "commandId": "..." }`.

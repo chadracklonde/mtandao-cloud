@@ -65,6 +65,8 @@ Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), route
 
 **Critère de sortie** : activation d'un ticket testée sur RouterOS 6 et 7. Non atteint : le code est testé avec un routeur simulé et contre l'API Cloud réelle, la validation sur équipements est décrite dans le plan de test du dépôt Gateway (`docs/lab-test-plan.md`).
 
+**Limites des tickets** : un ticket créé depuis le Cloud porte la limite de durée d'utilisation, la limite de données et le commentaire `vc-…` de l'application Mtandao Ticket (voir [commandes-gateway.md](commandes-gateway.md)).
+
 **Point d'alignement (résolu)** : le Gateway n'accepte que les codes de voucher `[A-Za-z0-9_.-]{1,64}` ; le Cloud accepte aujourd'hui toute chaîne de 1 à 64 caractères. À resserrer côté Cloud (commandes et import de stock) pour qu'un code accepté soit toujours exécutable.
 
 ## LOT 7 — Paiement sandbox
