@@ -46,7 +46,7 @@ Variables d'environnement :
 
 1. **Créer le site** (nom, devise, fuseau horaire).
 2. **Tarifs** : panneau « Tarifs du site », les cinq durées (1 h, 2 h, 24 h, 1 semaine, 1 mois), avec le profil Hotspot de chaque forfait tel qu'il existe sur le routeur (profils créés avec l'application Mtandao Ticket ou Mikhmon).
-3. **Stock de tickets** : il n'y a pas encore d'écran d'import ; utilisez l'API (1 à 1 000 codes par appel, lettres, chiffres, point, tiret, souligné) :
+3. **Stock de tickets** : utilisez le panneau « Stock de tickets » du dashboard : choisissez le forfait, collez les codes (un par ligne ou séparés par des virgules) ou chargez un fichier texte/CSV. Les codes invalides sont signalés avant l'envoi et les listes de plus de 1 000 codes sont envoyées par lots. Équivalent par l'API (1 à 1 000 codes par appel, lettres, chiffres, point, tiret, souligné) :
 
    ```sh
    curl -X POST "$API/v1/sites/$SITE/plans/$PLAN/ticket-stock" \

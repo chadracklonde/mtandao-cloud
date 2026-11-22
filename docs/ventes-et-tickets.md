@@ -31,6 +31,7 @@ Réponse : `{ "items": [...], "next_cursor": "<horodatage>|<uuid>" | null }`, du
 Règles :
 
 - Le nom d'un forfait est unique par site (`400` sinon).
+- Le dashboard propose un panneau « Stock de tickets » (compteurs par forfait et import par collage ou fichier, réservé à owner, admin et manager).
 - L'import de stock est idempotent : les codes déjà présents ou répétés sont ignorés. La réponse donne `submitted`, `inserted` et `skipped`.
 - Les codes du stock donnent accès au réseau : seuls owner, admin et manager peuvent les lire. Les autres rôles voient uniquement les compteurs.
 - Création, modification de forfait et import de stock sont inscrits au [journal d'audit](audit-et-roles.md) (`plan.created`, `plan.updated`, `ticket_stock.imported`).

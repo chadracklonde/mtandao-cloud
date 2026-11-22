@@ -5,6 +5,7 @@ import type { Session } from '@supabase/supabase-js';
 import { createClient } from '../lib/supabase/client';
 import { SiteReports } from './site-reports';
 import { SitePricing } from './site-pricing';
+import { SiteStock } from './site-stock';
 import { SiteAssistant } from './site-assistant';
 import { SiteReadiness } from './site-readiness';
 
@@ -435,6 +436,11 @@ export default function HomePage() {
       {siteId && session?.access_token && (() => {
         const current = sites.find(site => site.id === siteId);
         return <SitePricing apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} defaultCurrency={current?.default_currency ?? 'CDF'} canEdit={['owner', 'admin', 'manager'].includes(current?.role ?? '')} />;
+      })()}
+
+      {siteId && session?.access_token && (() => {
+        const current = sites.find(site => site.id === siteId);
+        return <SiteStock apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} canImport={['owner', 'admin', 'manager'].includes(current?.role ?? '')} />;
       })()}
 
       {siteId && session?.access_token && <SiteReports apiBase={API_BASE} accessToken={session.access_token} siteId={siteId} />}
