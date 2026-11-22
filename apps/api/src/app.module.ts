@@ -17,6 +17,8 @@ import { AuditController } from './audit/audit.controller';
 import { AuditService } from './audit/audit.service';
 import { CommerceController } from './commerce/commerce.controller';
 import { CommerceService } from './commerce/commerce.service';
+import { ReportsController } from './reports/reports.controller';
+import { ReportsService } from './reports/reports.service';
 
 @Module({
   controllers: [
@@ -29,6 +31,7 @@ import { CommerceService } from './commerce/commerce.service';
     SyncController,
     AuditController,
     CommerceController,
+    ReportsController,
   ],
   providers: [
     SupabaseAuthGuard,
@@ -40,6 +43,7 @@ import { CommerceService } from './commerce/commerce.service';
     SyncService,
     AuditService,
     CommerceService,
+    ReportsService,
   ],
 })
 export class AppModule {}
