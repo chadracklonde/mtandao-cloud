@@ -1,17 +1,17 @@
 # Plan de réalisation par lots
 
-Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9) en lots exécutables. Chaque lot livre migrations, tests, documentation et un critère de sortie. Statut mis à jour à chaque lot. Les migrations des lots 1 et 2 sont appliquées sur le projet Supabase `mtandao-cloud`.
+Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9) en lots exécutables. Chaque lot livre migrations, tests, documentation et un critère de sortie. Statut mis à jour à chaque lot. Toutes les migrations (`202611160001` à `202611160011`) sont appliquées sur le projet Supabase `mtandao-cloud`.
 
 | Lot | Contenu | Phase | Statut |
 | --- | --- | --- | --- |
 | 1 | Clôture de la synchronisation | 3 | Terminé, hors application sur Supabase |
 | 2 | Audit et rôles | 2 | Terminé, hors application sur Supabase |
-| 3 | Ventes et tickets côté API | 3-4 | Terminé, migration 003 non appliquée sur Supabase |
-| 4 | Dashboard, rapports, rapprochement | 4 | Terminé, migrations 003 et 004 non appliquées sur Supabase |
-| 5 | Commandes typées vers le Gateway | 5 | Terminé, migrations 003 à 005 non appliquées sur Supabase |
+| 3 | Ventes et tickets côté API | 3-4 | Terminé |
+| 4 | Dashboard, rapports, rapprochement | 4 | Terminé |
+| 5 | Commandes typées vers le Gateway | 5 | Terminé |
 | 6 | Adaptateur RouterOS 6 et 7 | 6 | Code livré sous forme de correctifs pour le dépôt Gateway (à appliquer) ; validation sur routeur réel à faire |
-| 7 | Paiement sandbox | 7 | Terminé, migrations 003 à 007 non appliquées sur Supabase |
-| 8 | Portail client | 8 | Terminé (fournisseur sandbox), migrations 003 à 008 non appliquées sur Supabase |
+| 7 | Paiement sandbox | 7 | Terminé |
+| 8 | Portail client | 8 | Terminé (fournisseur sandbox) |
 | 9 | Assistant analytique IA | 9 | À faire |
 | 10 | Pilote terrain | 10 | À faire |
 
@@ -89,3 +89,10 @@ Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), route
 ## LOT 10 — Pilote terrain
 
 - Déploiement sur 1 à 3 sites, supervision, support, décision de généralisation.
+
+## Migrations Supabase
+
+Les migrations `202611160001` à `202611160011` sont appliquées sur le projet `mtandao-cloud`. Deux points à connaître pour les prochaines :
+
+- Les instructions détectées comme destructives par l'outil Supabase (`drop function`, `drop not null`…) demandent une confirmation humaine dans la minute. Quand c'est possible, on les évite ou on les isole dans une petite migration à part (cas de `011_sales_allow_payment_origin`).
+- `create_plan` existe en deux versions : à 6 arguments (sans profil Hotspot) et à 7 arguments (avec profil). Le septième n'a volontairement pas de valeur par défaut, pour que les deux versions ne se disputent jamais un même appel.
