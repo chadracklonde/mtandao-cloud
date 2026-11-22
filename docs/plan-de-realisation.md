@@ -7,7 +7,7 @@ Ce plan découpe les phases du [cahier des charges](cahier-des-charges.md) (§9)
 | 1 | Clôture de la synchronisation | 3 | Terminé, hors application sur Supabase |
 | 2 | Audit et rôles | 2 | Terminé, hors application sur Supabase |
 | 3 | Ventes et tickets côté API | 3-4 | Terminé, migration 003 non appliquée sur Supabase |
-| 4 | Dashboard, rapports, rapprochement | 4 | À faire |
+| 4 | Dashboard, rapports, rapprochement | 4 | Terminé, migrations 003 et 004 non appliquées sur Supabase |
 | 5 | Commandes typées vers le Gateway | 5 | À faire |
 | 6 | Adaptateur RouterOS 6 et 7 | 6 | À faire |
 | 7 | Paiement sandbox | 7 | À faire |
@@ -49,7 +49,7 @@ Déjà livré avant le plan : socle Cloud (auth, sites, invitations, RLS), route
 - Pages Ventes, Caisse, Tickets ; rapports journaliers et mensuels.
 - Écarts de rapprochement vente / caisse / ticket (puis paiement).
 
-**Critère de sortie** : les écarts sont signalés.
+**Critère de sortie** : les écarts sont signalés. Atteint ; voir [rapports-et-rapprochement.md](rapports-et-rapprochement.md). Reste : résolution des conflits, export, contrôle visuel du dashboard.
 
 ## LOT 5 — Commandes typées vers le Gateway
 
