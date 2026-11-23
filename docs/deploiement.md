@@ -1,4 +1,6 @@
-# Déploiement : API (Render) et dashboard (Vercel)
+# Déploiement : API et dashboard sur Vercel, base sur Supabase
+
+> Render n'est plus utilisé : l'API NestJS et le dashboard tournent chacun dans un projet Vercel (`mtandao-cloud-api`, racine `apps/api`, et `mtandao-cloud-dashboard`, racine `apps/dashboard`). La section « API sur Render » ci-dessous est conservée pour mémoire.
 
 Ordre à suivre : API d'abord (son adresse est nécessaire au dashboard), puis dashboard, puis retour sur l'API pour autoriser l'adresse du dashboard.
 
